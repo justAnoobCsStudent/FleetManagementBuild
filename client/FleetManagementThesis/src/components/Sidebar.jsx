@@ -12,21 +12,21 @@ const Sidebar = () => {
         <span className="mt-2 text-xl font-semibold">Trucks</span>
         <br />
         <li className="mt-2 p-2 hover:bg-gray-700 rounded">
-          <Link to="">View All Trucks</Link>
+          <Link to="/view-trucks">View All Trucks</Link>
         </li>
         <li className="mt-2 p-2 hover:bg-gray-700 rounded">
-          <Link to="">Add New Truck</Link>
+          <Link to="/add-trucks">Add New Truck</Link>
         </li>
         <span className="mt-2 text-xl font-semibold">Drivers</span>
         <br />
         <li className="mt-2 p-2 hover:bg-gray-700 rounded">
-          <Link to="">View All Drivers</Link>
+          <Link to="view-drivers">View All Drivers</Link>
         </li>
         <li className="mt-2 p-2 hover:bg-gray-700 rounded">
-          <Link to="">Add New Driver</Link>
+          <Link to="/add-drivers">Add New Driver</Link>
         </li>
         <li className="mt-2 p-2 hover:bg-gray-700 rounded">
-          <Link to="">Reports</Link>
+          <Link to="view-reports">Reports</Link>
         </li>
       </ul>
     </div>

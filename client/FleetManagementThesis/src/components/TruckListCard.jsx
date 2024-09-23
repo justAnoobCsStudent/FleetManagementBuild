@@ -12,7 +12,6 @@ const TruckListCard = () => {
     <div className="bg-white shadow-md rounded-lg p-6 mb-6 w-full">
       <div className="space-y-4">
         {" "}
-        {/* Adds vertical spacing between each truck */}
         {trucks.map((truck) => (
           <div
             key={truck.id}

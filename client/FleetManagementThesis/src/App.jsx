@@ -3,6 +3,8 @@ import Sidebar from "./components/Sidebar.jsx";
 import Navbar from "./components/Navbar.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Footer from "./components/Footer.jsx";
+import AddDriver from "./pages/Add-Driver.jsx";
+import AddTruck from "./pages/Add-Truck.jsx";
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -16,6 +18,8 @@ function App() {
           <main className="flex-1 overflow-y-scroll bg-gray-100 p-6">
             <Routes>
               <Route path="/" element={<Dashboard />}></Route>
+              <Route path="/add-drivers" element={<AddDriver />}></Route>
+              <Route path="/add-trucks" element={<AddTruck />}></Route>
             </Routes>
           </main>
           <Footer />
