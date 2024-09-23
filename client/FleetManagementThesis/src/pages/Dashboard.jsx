@@ -22,11 +22,11 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="h-full mb-10">
+    <div className="h-full mb-10 px-4 sm:px-6 lg:px-8">
       <h1 className="text-xl font-semibold mb-4">GPS Tracking</h1>
 
-      {/* Map Section */}
-      <div className="h-96 rounded-lg overflow-hidden mb-6">
+      {/* Map Section with responsive height */}
+      <div className="h-80 sm:h-96 lg:h-112 rounded-lg overflow-hidden mb-6">
         <Map markers={markers} />
       </div>
 
