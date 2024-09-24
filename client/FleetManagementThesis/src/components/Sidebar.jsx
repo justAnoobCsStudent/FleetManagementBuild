@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { GrDashboard } from "react-icons/gr";
 import { TbReport } from "react-icons/tb";
 import {
@@ -28,33 +28,33 @@ const Sidebar = () => {
       } p-5 flex flex-col justify-between transition-width duration-300`}
     >
       <div className="flex-grow">
-        <h1 className={`text-xl font-bold ${!isOpen && "hidden"}`}>
+        <h1 className={`mt-5 text-xl font-bold ${!isOpen && "hidden"}`}>
           Admin Dashboard
         </h1>
         <ul className="mt-5">
-          <Link to="/" className={linkClass}>
+          <NavLink to="/" className={linkClass}>
             <div className="flex items-center">
               <GrDashboard className="text-2xl" />
               {isOpen && <span className="ml-2">Dashboard</span>}
             </div>
-          </Link>
+          </NavLink>
           <div className="mt-5">
             <span className={`text-xl font-semibold ${!isOpen && "hidden"}`}>
               Trucks
             </span>
           </div>
-          <Link to="/view-trucks" className={linkClass}>
+          <NavLink to="/view-trucks" className={linkClass}>
             <div className="flex items-center">
               <PiTruckDuotone className="text-2xl" />
               {isOpen && <span className="ml-2">View All Trucks</span>}
             </div>
-          </Link>
-          <Link to="/add-trucks" className={linkClass}>
+          </NavLink>
+          <NavLink to="/add-trucks" className={linkClass}>
             <div className="flex items-center">
               <PiPlusCircleBold className="text-2xl" />
               {isOpen && <span className="ml-2">Add New Truck</span>}
             </div>
-          </Link>
+          </NavLink>
 
           <div className="mt-5">
             <span
@@ -64,26 +64,27 @@ const Sidebar = () => {
             </span>
           </div>
 
-          <Link to="/view-drivers" className={linkClass}>
+          <NavLink to="/view-drivers" className={linkClass}>
             <div className="flex items-center">
               <RiUserSearchLine className="text-2xl" />
               {isOpen && <span className="ml-2">View All Drivers</span>}
             </div>
-          </Link>
-          <Link to="/add-drivers" className={linkClass}>
+          </NavLink>
+          <NavLink to="/add-drivers" className={linkClass}>
             <div className="flex items-center">
               <RiUserAddLine className="text-2xl" />
               {isOpen && <span className="ml-2">Add New Driver</span>}
             </div>
-          </Link>
-          <Link to="/view-reports" className={linkClass}>
+          </NavLink>
+          <NavLink to="/view-reports" className={linkClass}>
             <div className="flex items-center">
               <TbReport className="text-2xl" />
               {isOpen && <span className="ml-2">Report</span>}
             </div>
-          </Link>
+          </NavLink>
         </ul>
       </div>
+
       <div className="flex justify-center">
         <button className="text-3xl" onClick={toggleSidebar}>
           <PiArrowSquareLeftBold
@@ -96,5 +97,4 @@ const Sidebar = () => {
     </div>
   );
 };
-
 export default Sidebar;
