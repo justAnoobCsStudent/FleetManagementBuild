@@ -1,25 +1,50 @@
-import React from "react";
-import Map from "../components/Map"; // Import the Map component
+import React, { useEffect, useState } from "react";
+import Map from "../components/Map";
 import TruckListCard from "@/components/TruckListCard";
+import { getDatabase, ref, onValue } from "firebase/database";
 
 const Dashboard = () => {
-  const markers = [
-    {
-      id: 1,
-      position: [14.31860301338563, 120.86070267301378],
-      name: "Daniellah's Junkshop",
-    },
-    {
-      id: 2,
-      position: [14.416267169719413, 120.88057415088718],
-      name: "Cavite Economic Zone II",
-    },
-    {
-      id: 3,
-      position: [14.402041420483462, 120.87321416940911],
-      name: "Cavite Economic Zone IV",
-    },
-  ];
+  const [markers, setMarkers] = useState([]);
+
+  // Fetch GPS data from Firebase Realtime Database
+  useEffect(() => {
+    const database = getDatabase();
+    const markersRef = ref(database, "gps_data/TRUCK01");
+
+    // Listen for changes in GPS data
+    const unsubscribe = onValue(markersRef, (snapshot) => {
+      const data = snapshot.val();
+
+      if (data) {
+        // Get the latest entry by finding the most recent key
+        const latestKey = Object.keys(data).pop();
+        const latestData = data[latestKey];
+
+        if (latestData.latitude && latestData.longitude) {
+          // Log the fetched latitude and longitude data
+          console.log("Fetched GPS Data:", latestData);
+
+          // Create marker data for the map
+          const markerData = {
+            id: "TRUCK01", // Unique ID for the marker
+            position: [latestData.latitude, latestData.longitude], // Latitude and longitude from Firebase
+            name: "Truck 01", // Name for the marker
+          };
+
+          // Update markers state
+          setMarkers([markerData]);
+          console.log("Markers set:", [markerData]); // Log the markers set
+        } else {
+          console.error("Invalid GPS data:", latestData); // Log if data is invalid
+        }
+      } else {
+        console.error("No GPS data found for TRUCK01");
+      }
+    });
+
+    // Clean-up function to unsubscribe from database listener
+    return () => unsubscribe();
+  }, []);
 
   return (
     <div className="h-full mb-10 px-4 sm:px-6 lg:px-8">
