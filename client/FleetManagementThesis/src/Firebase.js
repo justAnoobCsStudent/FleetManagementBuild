@@ -1,21 +1,22 @@
-import { initializeApp} from "firebase/app"
-import { ref, onValue, getDatabase} from "firebase/database"
+import { initializeApp } from "firebase/app";
+import { ref, onValue, getDatabase } from "firebase/database";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBzw7SaK2OrMH4CDeOFxfhFm1AaeAetjNY",
-    authDomain: "fleeting-management-183e9.firebaseapp.com",
-    databaseURL: "https://fleeting-management-183e9-default-rtdb.firebaseio.com",
-    projectId: "fleeting-management-183e9",
-    storageBucket: "fleeting-management-183e9.appspot.com",
-    messagingSenderId: "870293032353",
-    appId: "1:870293032353:web:a991fbdb7fb63b9ad40fe0",
-    measurementId: "G-MVFF55613G"
-  };
+  apiKey: "AIzaSyBtZd5eYWlyZ8bJS3crweBRKhWKss-BcWk",
+  databaseURL:
+    "https://thesis-demo-87a8e-default-rtdb.asia-southeast1.firebasedatabase.app/",
+  authDomain: "thesis-demo-87a8e.firebaseapp.com",
+  projectId: "thesis-demo-87a8e",
+  storageBucket: "thesis-demo-87a8e.appspot.com",
+  messagingSenderId: "742717130814",
+  appId: "1:742717130814:web:de4d15a9a2396434d8a96f",
+  measurementId: "G-FLPKNZ1WV3",
+};
 
 // Initializing Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initilaing Realtime Database 
+// Initilaing Realtime Database
 const database = getDatabase(app);
 
-export {database, ref, onValue};
+export { database, ref, onValue };

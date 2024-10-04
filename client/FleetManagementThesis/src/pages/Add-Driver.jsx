@@ -1,4 +1,11 @@
 import React, { useState } from "react";
+import { Button, buttonVariants } from "../components/ui/button";
+import axios from "axios";
+
+//prodURL
+const prodURL = "https://thesis-api-bmpc.onrender.com";
+//devURL
+const devURL = "http://localhost:7000/api/v1";
 
 const AddDriver = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +19,7 @@ const AddDriver = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [submissionStatus, setSubmissionsStatus] = useState("");
 
   const handleChange = (e) => {
     setFormData({
@@ -66,12 +74,27 @@ const AddDriver = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (validateForm()) {
-      // Handle form submission
-      console.log("Form submitted", formData);
+      try {
+        // Handle form submission
+        const response = await axios.post(
+          `${devURL}/drivers/register`,
+          formData
+        );
+
+        if (response.status === 201) {
+          setSubmissionsStatus("Form submitted successfully!");
+          console.log("Form submitted successfully:", response.data);
+        } else {
+          setSubmissionsStatus("Error submitting form.");
+        }
+      } catch (error) {
+        setSubmissionsStatus("Error submitting form.");
+        console.error("Error submitting form:", error);
+      }
     } else {
       console.log("Validation errors", errors);
     }
@@ -266,12 +289,15 @@ const AddDriver = () => {
 
         {/* Submit Button */}
         <div className="mt-6">
-          <button
+          <Button
+            className={
+              "w-full py-2 px-4 rounded-md shadow-md" +
+              buttonVariants({ variant: "primary" })
+            }
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md shadow-md hover:bg-blue-700"
           >
             Submit
-          </button>
+          </Button>
         </div>
       </form>
     </div>

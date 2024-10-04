@@ -1,8 +1,15 @@
 import React, { useState } from "react";
+import { Button, buttonVariants } from "../components/ui/button";
+import axios from "axios";
+
+//prodURL
+const prodURL = "https://thesis-api-bmpc.onrender.com";
+//devURL
+const devURL = "http://localhost:7000/api/v1";
 
 const AddTruck = () => {
   const [formData, setFormData] = useState({
-    brand: "",
+    truck_id: "",
     unit: "",
     plateNumber: "",
     yearPurchased: "",
@@ -11,6 +18,8 @@ const AddTruck = () => {
     odometer: "",
   });
 
+  const [submissionStatus, setSubmissionsStatus] = useState("");
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -18,35 +27,31 @@ const AddTruck = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission
-    console.log("Form submitted", formData);
+    try {
+      // Handle form submission
+      const response = await axios.post(
+        `${devURL}/vehicles/register`,
+        formData
+      );
+
+      if (response.status === 201) {
+        setSubmissionsStatus("Form submitted successfully!");
+        console.log("Form submitted successfully:", response.data);
+      } else {
+        setSubmissionsStatus("Error submitting form.");
+      }
+    } catch (error) {
+      setSubmissionsStatus("Error submitting form.");
+      console.error("Error submitting form:", error);
+    }
   };
 
   return (
     <div className="w-100 mx-auto bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">Add New Truck</h2>
       <form onSubmit={handleSubmit}>
-        {/* Brand */}
-        <div className="mb-4">
-          <label
-            htmlFor="brand"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Brand
-          </label>
-          <input
-            type="text"
-            id="brand"
-            name="brand"
-            value={formData.brand}
-            onChange={handleChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            required
-          />
-        </div>
-
         {/* Unit */}
         <div className="mb-4">
           <label
@@ -79,25 +84,6 @@ const AddTruck = () => {
             id="plateNumber"
             name="plateNumber"
             value={formData.plateNumber}
-            onChange={handleChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            required
-          />
-        </div>
-
-        {/* Year Purchased */}
-        <div className="mb-4">
-          <label
-            htmlFor="yearPurchased"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Year Purchased
-          </label>
-          <input
-            type="number"
-            id="yearPurchased"
-            name="yearPurchased"
-            value={formData.yearPurchased}
             onChange={handleChange}
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             required
@@ -156,33 +142,35 @@ const AddTruck = () => {
           </div>
         </div>
 
-        {/* Odometer */}
+        {/* Truck ID Dropdown */}
         <div className="mb-4">
-          <label
-            htmlFor="odometer"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Odometer (km)
+          <label className="block text-sm font-medium text-gray-700">
+            Truck ID
           </label>
-          <input
-            type="number"
-            id="odometer"
-            name="odometer"
-            value={formData.odometer}
+          <select
+            name="truckID"
+            value={formData.truckID}
             onChange={handleChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            required
-          />
+            className="w-full p-2 border border-gray-300 rounded-md"
+          >
+            <option>--Select Truck ID--</option>
+            <option value="TRUCK01">TRUCK 01</option>
+            <option value="TRUCK02">TRUCK 02</option>
+            <option value="TRUCK03">TRUCK 03</option>
+          </select>
         </div>
 
         {/* Submit Button */}
         <div className="mt-6">
-          <button
+          <Button
+            className={
+              "w-full py-2 px-4 rounded-md shadow-md" +
+              buttonVariants({ variant: "primary" })
+            }
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md shadow-md hover:bg-blue-700"
           >
             Submit
-          </button>
+          </Button>
         </div>
       </form>
     </div>

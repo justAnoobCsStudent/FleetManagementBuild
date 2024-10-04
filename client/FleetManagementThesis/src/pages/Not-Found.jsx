@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { FaExclamationTriangle } from "react-icons/fa";
+import { Button, buttonVariants } from "@/components/ui/button";
 
 const NotFoundPage = () => {
   return (
@@ -11,8 +12,13 @@ const NotFoundPage = () => {
         <h1 className="text-6xl font-bold mb-4">404 Not Found</h1>
         <p className="text-xl mb-5">This page does not exist</p>
         {/* Link to Home Page */}
-        <Link className="text-white bg-indigo-500 hover:bg-indigo-700 rounded-md px-3 py-2 mt-4">
-          Go back
+        <Link>
+          <Button
+            className={"" + buttonVariants({ variant: "primary" })}
+            type="submit"
+          >
+            Go Back
+          </Button>
         </Link>
       </section>
     </>
