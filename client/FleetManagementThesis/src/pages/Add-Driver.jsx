@@ -1,14 +1,11 @@
 import React, { useState } from "react";
 import { Button, buttonVariants } from "../components/ui/button";
-import axios from "axios";
-
-//prodURL
-const prodURL = "https://thesis-api-bmpc.onrender.com";
-//devURL
-const devURL = "http://localhost:7000/api/v1";
+import useValidateForm from "@/hooks/useValidateForm";
+import validateDriverForm from "@/utils/validateDriverForm";
+import useAddDrivers from "@/hooks/useAddDrivers";
 
 const AddDriver = () => {
-  const [formData, setFormData] = useState({
+  const initialFormState = {
     firstName: "",
     lastName: "",
     middleInitial: "",
@@ -16,94 +13,22 @@ const AddDriver = () => {
     age: "",
     phoneNumber: "",
     gender: "",
-  });
-
-  const [errors, setErrors] = useState({});
-  const [submissionStatus, setSubmissionsStatus] = useState("");
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
   };
+  const { formData, errors, handleChange, validate } = useValidateForm(
+    initialFormState,
+    validateDriverForm
+  );
 
-  const validateForm = () => {
-    let newErrors = {};
-
-    // Validate first name
-    if (!formData.firstName) {
-      newErrors.firstName = "First name is required";
-    }
-
-    // Validate last name
-    if (!formData.lastName) {
-      newErrors.lastName = "Last name is required";
-    }
-
-    // Validate middle initial (1 character)
-    if (!formData.middleInitial || formData.middleInitial.length !== 1) {
-      newErrors.middleInitial = "Middle initial must be 1 character";
-    }
-
-    // Validate license number (min 6 characters)
-    if (!formData.licenseNumber || formData.licenseNumber.length < 6) {
-      newErrors.licenseNumber = "License number must be at least 6 characters";
-    }
-
-    // Validate age (must be a number and >= 18)
-    if (!formData.age || formData.age < 18) {
-      newErrors.age = "Driver must be at least 18 years old";
-    }
-
-    // Validate Philippine phone number
-    const phonePattern = /^(09\d{9}|(\+639)\d{9})$/;
-    if (!phonePattern.test(formData.phoneNumber)) {
-      newErrors.phoneNumber =
-        "Phone number must be a valid Philippine number starting with 09 or +639";
-    }
-
-    // Validate gender
-    if (!formData.gender) {
-      newErrors.gender = "Gender is required";
-    }
-
-    setErrors(newErrors);
-
-    // Return true if no errors
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (validateForm()) {
-      try {
-        // Handle form submission
-        const response = await axios.post(
-          `${devURL}/drivers/register`,
-          formData
-        );
-
-        if (response.status === 201) {
-          setSubmissionsStatus("Form submitted successfully!");
-          console.log("Form submitted successfully:", response.data);
-        } else {
-          setSubmissionsStatus("Error submitting form.");
-        }
-      } catch (error) {
-        setSubmissionsStatus("Error submitting form.");
-        console.error("Error submitting form:", error);
-      }
-    } else {
-      console.log("Validation errors", errors);
-    }
-  };
+  const { handleSubmit, loading } = useAddDrivers(
+    "/drivers/register",
+    initialFormState,
+    validate
+  );
 
   return (
     <div className="w=100 mx-auto bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">Add New Driver</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={(e) => handleSubmit(e, formData)}>
         {/* First Name */}
         <div className="mb-4">
           <label
@@ -166,7 +91,6 @@ const AddDriver = () => {
             name="middleInitial"
             value={formData.middleInitial}
             onChange={handleChange}
-            maxLength="1"
             className={`mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
               errors.middleInitial ? "border-red-500" : ""
             }`}
@@ -191,7 +115,6 @@ const AddDriver = () => {
             name="licenseNumber"
             value={formData.licenseNumber}
             onChange={handleChange}
-            minLength="6"
             className={`mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
               errors.licenseNumber ? "border-red-500" : ""
             }`}
@@ -216,7 +139,6 @@ const AddDriver = () => {
             name="age"
             value={formData.age}
             onChange={handleChange}
-            min="18"
             className={`mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
               errors.age ? "border-red-500" : ""
             }`}
@@ -234,16 +156,14 @@ const AddDriver = () => {
             Phone Number
           </label>
           <input
-            type="tel"
+            type="text"
             id="phoneNumber"
             name="phoneNumber"
             value={formData.phoneNumber}
             onChange={handleChange}
-            pattern="(09\d{9})|(\+639\d{9})"
             className={`mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
               errors.phoneNumber ? "border-red-500" : ""
             }`}
-            placeholder="09123456789 or +639123456789"
             required
           />
           {errors.phoneNumber && (
@@ -253,51 +173,40 @@ const AddDriver = () => {
 
         {/* Gender */}
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="gender"
+            className="block text-sm font-medium text-gray-700"
+          >
             Gender
           </label>
-          <div className="mt-1 flex space-x-4">
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                name="gender"
-                value="Male"
-                checked={formData.gender === "Male"}
-                onChange={handleChange}
-                className="form-radio text-blue-600"
-                required
-              />
-              <span className="ml-2">Male</span>
-            </label>
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                name="gender"
-                value="Female"
-                checked={formData.gender === "Female"}
-                onChange={handleChange}
-                className="form-radio text-blue-600"
-                required
-              />
-              <span className="ml-2">Female</span>
-            </label>
-          </div>
+          <select
+            id="gender"
+            name="gender"
+            value={formData.gender}
+            onChange={handleChange}
+            className={`mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+              errors.gender ? "border-red-500" : ""
+            }`}
+            required
+          >
+            <option value="">Select gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
           {errors.gender && (
             <p className="text-red-500 text-sm">{errors.gender}</p>
           )}
         </div>
 
         {/* Submit Button */}
-        <div className="mt-6">
-          <Button
-            className={
-              "w-full py-2 px-4 rounded-md shadow-md" +
-              buttonVariants({ variant: "primary" })
-            }
-            type="submit"
-          >
-            Submit
-          </Button>
+        <div className="flex justify-center">
+          {loading ? (
+            <ClipLoader color="#000" loading={isLoading} />
+          ) : (
+            <Button type="submit" className="mt-4">
+              Submit
+            </Button>
+          )}
         </div>
       </form>
     </div>

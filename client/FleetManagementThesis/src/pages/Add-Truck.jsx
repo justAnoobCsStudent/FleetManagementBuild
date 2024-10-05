@@ -1,57 +1,34 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button, buttonVariants } from "../components/ui/button";
-import axios from "axios";
-
-//prodURL
-const prodURL = "https://thesis-api-bmpc.onrender.com";
-//devURL
-const devURL = "http://localhost:7000/api/v1";
+import useValidateForm from "@/hooks/useValidateForm";
+import validateTruckForm from "@/utils/validateTruckForm";
+import useAddTruck from "@/hooks/useAddTruck";
 
 const AddTruck = () => {
-  const [formData, setFormData] = useState({
+  const initialFormState = {
     truck_id: "",
     unit: "",
     plateNumber: "",
-    yearPurchased: "",
     color: "",
     transmission: "",
     odometer: "",
-  });
-
-  const [submissionStatus, setSubmissionsStatus] = useState("");
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      // Handle form submission
-      const response = await axios.post(
-        `${devURL}/vehicles/register`,
-        formData
-      );
+  const { formData, errors, handleChange, validate } = useValidateForm(
+    initialFormState,
+    validateTruckForm
+  );
 
-      if (response.status === 201) {
-        setSubmissionsStatus("Form submitted successfully!");
-        console.log("Form submitted successfully:", response.data);
-      } else {
-        setSubmissionsStatus("Error submitting form.");
-      }
-    } catch (error) {
-      setSubmissionsStatus("Error submitting form.");
-      console.error("Error submitting form:", error);
-    }
-  };
+  const { handleSubmit, loading } = useAddTruck(
+    "/vehicles/register",
+    initialFormState,
+    validate
+  );
 
   return (
     <div className="w-100 mx-auto bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">Add New Truck</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={(e) => handleSubmit(e, formData)}>
         {/* Unit */}
         <div className="mb-4">
           <label
@@ -66,9 +43,12 @@ const AddTruck = () => {
             name="unit"
             value={formData.unit}
             onChange={handleChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            className={`mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+              errors.unit ? "border-red-500" : ""
+            }`}
             required
           />
+          {errors.unit && <p className="text-red-500 text-sm">{errors.unit}</p>}
         </div>
 
         {/* Plate Number */}
@@ -85,9 +65,14 @@ const AddTruck = () => {
             name="plateNumber"
             value={formData.plateNumber}
             onChange={handleChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            className={`mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+              errors.plateNumber ? "border-red-500" : ""
+            }`}
             required
           />
+          {errors.plateNumber && (
+            <p className="text-red-500 text-sm">{errors.plateNumber}</p>
+          )}
         </div>
 
         {/* Color */}
@@ -104,9 +89,14 @@ const AddTruck = () => {
             name="color"
             value={formData.color}
             onChange={handleChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            className={`mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
+              errors.color ? "border-red-500" : ""
+            }`}
             required
           />
+          {errors.color && (
+            <p className="text-red-500 text-sm">{errors.color}</p>
+          )}
         </div>
 
         {/* Transmission */}
@@ -148,29 +138,38 @@ const AddTruck = () => {
             Truck ID
           </label>
           <select
-            name="truckID"
-            value={formData.truckID}
+            name="truck_id"
+            value={formData.truck_id}
             onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md"
+            className={`w-full p-2 border border-gray-300 rounded-md ${
+              errors.truck_id ? "border-red-500" : ""
+            }`}
           >
-            <option>--Select Truck ID--</option>
+            <option value="">--Select Truck ID--</option>
             <option value="TRUCK01">TRUCK 01</option>
             <option value="TRUCK02">TRUCK 02</option>
             <option value="TRUCK03">TRUCK 03</option>
           </select>
+          {errors.truck_id && (
+            <p className="text-red-500 text-sm">{errors.truck_id}</p>
+          )}
         </div>
 
         {/* Submit Button */}
-        <div className="mt-6">
-          <Button
-            className={
-              "w-full py-2 px-4 rounded-md shadow-md" +
-              buttonVariants({ variant: "primary" })
-            }
-            type="submit"
-          >
-            Submit
-          </Button>
+        <div className="flex justify-center">
+          {loading ? (
+            <ClipLoader color="#000" loading={isLoading} />
+          ) : (
+            <Button
+              type="submit"
+              className={
+                "mt-4 w-full py-2 px-4 rounded-md shadow-md" +
+                buttonVariants({ variant: "primary" })
+              }
+            >
+              Submit
+            </Button>
+          )}
         </div>
       </form>
     </div>

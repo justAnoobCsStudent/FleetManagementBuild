@@ -1,36 +1,34 @@
 import React, { useEffect, useState } from "react";
 import Map from "../components/Map";
 import TruckListCard from "@/components/TruckListCard";
-import { getDatabase, ref, onValue } from "firebase/database";
+import { ref, onValue } from "firebase/database";
+import { database } from "../Firebase";
 
 const Dashboard = () => {
   const [markers, setMarkers] = useState([]);
+  const [fuelData, setFuelData] = useState({});
 
   // Fetch GPS data from Firebase Realtime Database
   useEffect(() => {
-    const database = getDatabase();
     const markersRef = ref(database, "gps_data/TRUCK01");
+    const fuelRef = ref(database, "fuel_data/TRUCK01");
 
     // Listen for changes in GPS data
-    const unsubscribe = onValue(markersRef, (snapshot) => {
+    const unsubscribeGPS = onValue(markersRef, (snapshot) => {
       const data = snapshot.val();
-
       if (data) {
         // Get the latest entry by finding the most recent key
         const latestKey = Object.keys(data).pop();
         const latestData = data[latestKey];
-
         if (latestData.latitude && latestData.longitude) {
           // Log the fetched latitude and longitude data
           console.log("Fetched GPS Data:", latestData);
-
           // Create marker data for the map
           const markerData = {
             id: "TRUCK01", // Unique ID for the marker
             position: [latestData.latitude, latestData.longitude], // Latitude and longitude from Firebase
             name: "Truck 01", // Name for the marker
           };
-
           // Update markers state
           setMarkers([markerData]);
           console.log("Markers set:", [markerData]); // Log the markers set
@@ -42,8 +40,32 @@ const Dashboard = () => {
       }
     });
 
+    const unsubscribeFuel = onValue(fuelRef, (snapshot) => {
+      const data = snapshot.val() || {};
+      const newFuelData = {};
+
+      const trucks = ["TRUCK01", "TRUCK02", "TRUCK03"];
+      trucks.forEach((truck) => {
+        if (data[truck]) {
+          const fuelEntries = data[truck];
+          const latestEntry = fuelEntries && Object.keys(fuelEntries).pop();
+          newFuelData[truck] = {
+            fuel_percentage: latestEntry
+              ? fuelEntries[latestEntry].fuel_percentage || 0
+              : 0,
+          };
+        } else {
+          newFuelData[truck] = { fuel_percentage: 0 };
+        }
+      });
+      setFuelData(newFuelData);
+    });
+
     // Clean-up function to unsubscribe from database listener
-    return () => unsubscribe();
+    return () => {
+      unsubscribeGPS();
+      unsubscribeFuel();
+    };
   }, []);
 
   return (
@@ -58,7 +80,7 @@ const Dashboard = () => {
       {/* Truck List Section */}
       <div className="w-full">
         <h2 className="text-xl font-semibold mb-4">Truck List</h2>
-        <TruckListCard />
+        <TruckListCard fuelData={fuelData} /> {/* Pass fuelData directly */}
       </div>
     </div>
   );

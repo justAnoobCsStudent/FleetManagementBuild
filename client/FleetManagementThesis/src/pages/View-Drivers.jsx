@@ -1,38 +1,18 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { Button, buttonVariants } from "../components/ui/button";
+import Spinner from "@/components/Spinner";
+import useFetch from "@/hooks/useFetch";
 
 const ViewDrivers = () => {
-  const [drivers, setDrivers] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  //prodURL
-  const prodURL = "https://thesis-api-bmpc.onrender.com";
-  //devURL
-  const devURL = "http://localhost:7000/api/v1";
-
-  useEffect(() => {
-    //Fetch data from server
-    const fetchDrivers = async () => {
-      setIsLoading(true);
-      try {
-        const response = await axios.get(`${devURL}/drivers`);
-        setDrivers(response.data.data);
-        console.log(response.data);
-      } catch (error) {
-        setError(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchDrivers();
-  }, []);
+  const { data: drivers, isLoading, error } = useFetch("/drivers");
 
   return (
     <div className="w-100 mx-auto bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">View Drivers</h2>
-      {drivers.length > 0 ? (
+      {isLoading ? (
+        <Spinner loading={isLoading} />
+      ) : error ? (
+        <p className="text-red-700"> Error fetching data: {error.message}</p>
+      ) : drivers.length > 0 ? (
         <table className="min-w-full bg-white border border-gray-200">
           <thead>
             <tr>
@@ -47,8 +27,8 @@ const ViewDrivers = () => {
             </tr>
           </thead>
           <tbody>
-            {drivers.map((driver, index) => (
-              <tr key={index} className="text-center">
+            {drivers.map((driver) => (
+              <tr key={driver.id} className="text-center">
                 <td className="py-2 px-4 border-b">{driver.name.firstName}</td>
                 <td className="py-2 px-4 border-b">{driver.name.lastName}</td>
                 <td className="py-2 px-4 border-b">
@@ -59,11 +39,17 @@ const ViewDrivers = () => {
                 <td className="py-2 px-4 border-b">{driver.phoneNumber}</td>
                 <td className="py-2 px-4 border-b">{driver.gender}</td>
                 <td className="py-2 px-4 border-b ">
-                  <Button className={buttonVariants({ variant: "primary" })}>
+                  <Button
+                    className={`${buttonVariants({
+                      variant: "primary",
+                    })} + px-2 py-1 mr-2`}
+                  >
                     View
                   </Button>
                   <Button
-                    className={buttonVariants({ variant: "destructive" })}
+                    className={`${buttonVariants({
+                      variant: "destructive",
+                    })} + px-2 py-1`}
                   >
                     Delete
                   </Button>
