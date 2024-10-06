@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 
+// Custom hook for validating form
 const useValidateForm = (initialState, validateFormCallback) => {
-  const [formData, setFormData] = useState(initialState);
-  const [errors, setErrors] = useState({});
+  const [formData, setFormData] = useState(initialState); // State to store form data
+  const [errors, setErrors] = useState({}); // State to store error
+
+  // Function to handle changes
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -10,12 +13,14 @@ const useValidateForm = (initialState, validateFormCallback) => {
     });
   };
 
+  // Function to validate form
   const validate = () => {
     const validationErrors = validateFormCallback(formData);
-    setErrors(validationErrors);
+    setErrors(validationErrors); // Store errors
     return Object.keys(validationErrors).length === 0;
   };
 
+  // Return useValidateForm hook properties
   return {
     formData,
     errors,

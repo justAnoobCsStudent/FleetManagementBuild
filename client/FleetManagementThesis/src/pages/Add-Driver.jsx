@@ -5,6 +5,7 @@ import validateDriverForm from "@/utils/validateDriverForm";
 import useAddDrivers from "@/hooks/useAddDrivers";
 
 const AddDriver = () => {
+  // Set the initial form state to default values
   const initialFormState = {
     firstName: "",
     lastName: "",
@@ -14,17 +15,21 @@ const AddDriver = () => {
     phoneNumber: "",
     gender: "",
   };
+
+  // Destructure form handling utilities from useValidateForm hook
   const { formData, errors, handleChange, validate } = useValidateForm(
-    initialFormState,
-    validateDriverForm
+    initialFormState, // Pass the initial form state
+    validateDriverForm // Validation function
   );
 
+  // Destructure form submission handler from useAddDrivers hook
   const { handleSubmit, loading } = useAddDrivers(
-    "/drivers/register",
-    initialFormState,
-    validate
+    "/drivers/register", // API endpoint to add driver
+    initialFormState, // Initial state of form submitted
+    validate // Validate form
   );
 
+  // Return add driver form
   return (
     <div className="w=100 mx-auto bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">Add New Driver</h2>

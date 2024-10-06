@@ -3,8 +3,14 @@ import Spinner from "../components/Spinner";
 import useFetch from "@/hooks/useFetch";
 
 const ViewTrucks = () => {
-  const { data: trucks, isLoading, error } = useFetch("/vehicles");
+  // Destructure the custom hook's response to fetch driver data
+  const {
+    data: trucks, // Contain the fetch data
+    isLoading, // Boolean flag for loading state
+    error, // Error encountered during fetching
+  } = useFetch("/vehicles");
 
+  // Return View trucks
   return (
     <div className="w-100 mx-auto bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">View Trucks</h2>

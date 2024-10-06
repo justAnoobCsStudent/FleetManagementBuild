@@ -5,13 +5,13 @@ import { ref, onValue } from "firebase/database";
 import { database } from "../Firebase";
 
 const Dashboard = () => {
-  const [markers, setMarkers] = useState([]);
-  const [fuelData, setFuelData] = useState({});
+  const [markers, setMarkers] = useState([]); // State for storing GPS markers
+  const [fuelData, setFuelData] = useState({}); // State for storing fuel data
 
   // Fetch GPS data from Firebase Realtime Database
   useEffect(() => {
     const markersRef = ref(database, "gps_data/TRUCK01");
-    const fuelRef = ref(database, "fuel_data/TRUCK01");
+    const fuelRef = ref(database, "fuel_data");
 
     // Listen for changes in GPS data
     const unsubscribeGPS = onValue(markersRef, (snapshot) => {
@@ -40,13 +40,16 @@ const Dashboard = () => {
       }
     });
 
+    // Listen for changes in fuel data
     const unsubscribeFuel = onValue(fuelRef, (snapshot) => {
+      console.log("Fetched fuel data:", snapshot.val());
       const data = snapshot.val() || {};
       const newFuelData = {};
 
       const trucks = ["TRUCK01", "TRUCK02", "TRUCK03"];
       trucks.forEach((truck) => {
         if (data[truck]) {
+          // Get the latest entry by finding the most recent key
           const fuelEntries = data[truck];
           const latestEntry = fuelEntries && Object.keys(fuelEntries).pop();
           newFuelData[truck] = {
@@ -55,9 +58,10 @@ const Dashboard = () => {
               : 0,
           };
         } else {
-          newFuelData[truck] = { fuel_percentage: 0 };
+          newFuelData[truck] = { fuel_percentage: 0 }; // Default value if no data
         }
       });
+      // Update Fuel state
       setFuelData(newFuelData);
     });
 
@@ -68,6 +72,7 @@ const Dashboard = () => {
     };
   }, []);
 
+  // Return Dashboard
   return (
     <div className="h-full mb-10 px-4 sm:px-6 lg:px-8">
       <h1 className="text-xl font-semibold mb-4">GPS Tracking</h1>

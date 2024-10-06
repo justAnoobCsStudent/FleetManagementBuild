@@ -5,6 +5,7 @@ import validateTruckForm from "@/utils/validateTruckForm";
 import useAddTruck from "@/hooks/useAddTruck";
 
 const AddTruck = () => {
+  // Set the initial form state to default values
   const initialFormState = {
     truck_id: "",
     unit: "",
@@ -14,17 +15,20 @@ const AddTruck = () => {
     odometer: "",
   };
 
+  // Destructure form handling utilities from useValidateForm hook
   const { formData, errors, handleChange, validate } = useValidateForm(
-    initialFormState,
-    validateTruckForm
+    initialFormState, // Pass the initial form state
+    validateTruckForm // Validation function
   );
 
+  // Destructure form submission handler from useAddDrivers hook
   const { handleSubmit, loading } = useAddTruck(
-    "/vehicles/register",
-    initialFormState,
-    validate
+    "/vehicles/register", // API endpoint to add truck
+    initialFormState, // Initial state of form submitted
+    validate // Validate form
   );
 
+  // Return add driver form
   return (
     <div className="w-100 mx-auto bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">Add New Truck</h2>
