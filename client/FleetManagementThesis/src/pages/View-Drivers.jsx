@@ -1,6 +1,7 @@
 import { Button, buttonVariants } from "../components/ui/button";
 import Spinner from "@/components/Spinner";
 import useFetch from "@/hooks/useFetch";
+import { Link } from "react-router-dom";
 
 const ViewDrivers = () => {
   // Destructure the custom hook's response to fetch driver data
@@ -45,13 +46,15 @@ const ViewDrivers = () => {
                 <td className="py-2 px-4 border-b">{driver.phoneNumber}</td>
                 <td className="py-2 px-4 border-b">{driver.gender}</td>
                 <td className="py-2 px-4 border-b ">
-                  <Button
-                    className={`${buttonVariants({
-                      variant: "primary",
-                    })} + px-2 py-1 mr-2`}
-                  >
-                    View
-                  </Button>
+                  <Link to={`/view-driver/${driver.id}`}>
+                    <Button
+                      className={`${buttonVariants({
+                        variant: "primary",
+                      })} + px-2 py-1 mr-2`}
+                    >
+                      View
+                    </Button>
+                  </Link>
                   <Button
                     className={`${buttonVariants({
                       variant: "destructive",

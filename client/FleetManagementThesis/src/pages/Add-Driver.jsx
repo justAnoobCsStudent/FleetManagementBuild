@@ -3,9 +3,9 @@ import { Button, buttonVariants } from "../components/ui/button";
 import useValidateForm from "@/hooks/useValidateForm";
 import validateDriverForm from "@/utils/validateDriverForm";
 import useAddDrivers from "@/hooks/useAddDrivers";
+import ClipLoader from "react-spinners/ClipLoader"; // Assuming you're using ClipLoader for loading
 
 const AddDriver = () => {
-  // Set the initial form state to default values
   const initialFormState = {
     firstName: "",
     lastName: "",
@@ -13,23 +13,20 @@ const AddDriver = () => {
     licenseNumber: "",
     age: "",
     phoneNumber: "",
-    gender: "",
+    gender: "", // Gender will now be a radio button group
   };
 
-  // Destructure form handling utilities from useValidateForm hook
   const { formData, errors, handleChange, validate } = useValidateForm(
-    initialFormState, // Pass the initial form state
-    validateDriverForm // Validation function
+    initialFormState,
+    validateDriverForm
   );
 
-  // Destructure form submission handler from useAddDrivers hook
   const { handleSubmit, loading } = useAddDrivers(
-    "/drivers/register", // API endpoint to add driver
-    initialFormState, // Initial state of form submitted
-    validate // Validate form
+    "/drivers/register",
+    initialFormState,
+    validate
   );
 
-  // Return add driver form
   return (
     <div className="w=100 mx-auto bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">Add New Driver</h2>
@@ -176,7 +173,7 @@ const AddDriver = () => {
           )}
         </div>
 
-        {/* Gender */}
+        {/* Gender - Radio Buttons */}
         <div className="mb-4">
           <label
             htmlFor="gender"
@@ -184,20 +181,36 @@ const AddDriver = () => {
           >
             Gender
           </label>
-          <select
-            id="gender"
-            name="gender"
-            value={formData.gender}
-            onChange={handleChange}
-            className={`mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-              errors.gender ? "border-red-500" : ""
-            }`}
-            required
-          >
-            <option value="">Select gender</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-          </select>
+          <div className="mt-2 flex">
+            <label className="inline-flex items-center">
+              <input
+                type="radio"
+                name="gender"
+                value="Male"
+                checked={formData.gender === "Male"}
+                onChange={handleChange}
+                className={`form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out ${
+                  errors.gender ? "border-red-500" : ""
+                }`}
+                required
+              />
+              <span className="ml-2">Male</span>
+            </label>
+            <label className="inline-flex items-center ml-4">
+              <input
+                type="radio"
+                name="gender"
+                value="Female"
+                checked={formData.gender === "Female"}
+                onChange={handleChange}
+                className={`form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out ${
+                  errors.gender ? "border-red-500" : ""
+                }`}
+                required
+              />
+              <span className="ml-2">Female</span>
+            </label>
+          </div>
           {errors.gender && (
             <p className="text-red-500 text-sm">{errors.gender}</p>
           )}
@@ -206,9 +219,9 @@ const AddDriver = () => {
         {/* Submit Button */}
         <div className="flex justify-center">
           {loading ? (
-            <ClipLoader color="#000" loading={isLoading} />
+            <ClipLoader color="#000" loading={loading} />
           ) : (
-            <Button type="submit" className="mt-4">
+            <Button type="submit" className="mt-4 w-full">
               Submit
             </Button>
           )}

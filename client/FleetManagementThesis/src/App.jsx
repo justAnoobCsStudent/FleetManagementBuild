@@ -14,6 +14,9 @@ import MainLayout from "./layout/Main-Layout.jsx";
 import ViewDrivers from "./pages/View-Drivers.jsx";
 import ViewTrucks from "./pages/View-Trucks.jsx";
 import ViewReports from "./pages/View-Reports.jsx";
+import ViewTruck from "./pages/View-Truck.jsx";
+import ViewDriver from "./pages/View-Driver.jsx";
+import EditTruck from "./pages/Edit-Truck.jsx";
 
 // Defining router using createBrowserRouter and createRoutesFromElements
 const router = createBrowserRouter(
@@ -27,6 +30,9 @@ const router = createBrowserRouter(
       <Route path="/view-drivers" element={<ViewDrivers />}></Route>
       <Route path="/view-trucks" element={<ViewTrucks />}></Route>
       <Route path="/view-reports" element={<ViewReports />}></Route>
+      <Route path="/view-truck/:id" element={<ViewTruck />}></Route>
+      <Route path="/view-driver/:id" element={<ViewDriver />}></Route>
+      <Route path="/edit-truck/:id" element={<EditTruck />}></Route>
       {/* Catch all route for all page missing or not existing */}
       <Route path="*" element={<NotFoundPage />}></Route>
     </Route>

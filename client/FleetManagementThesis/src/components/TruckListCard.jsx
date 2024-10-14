@@ -2,6 +2,7 @@ import React from "react";
 import { Button, buttonVariants } from "./ui/button";
 import useFetch from "@/hooks/useFetch";
 import Spinner from "./Spinner";
+import { Link } from "react-router-dom";
 
 // Using custom hook (useFetch) to fetch the data from database
 const TruckListCard = ({ fuelData = {} }) => {
@@ -40,13 +41,16 @@ const TruckListCard = ({ fuelData = {} }) => {
                     Plate Number: {truck.plateNumber}
                   </p>
                   <p className="text-md font-medium mb-2">
-                    Active Driver: {truck.driver.firstName}
+                    Active Driver:
+                    {truck.driver.name
+                      ? ` ${truck.driver.name.lastName}, ${truck.driver.name.firstName}`
+                      : ` No Driver Assigned`}
                   </p>
 
                   {/* Fuel Capacity */}
                   <div className="mt-2">
                     <p className="text-md font-medium text-gray-600 mb-2">
-                      Fuel Capacity:{" "}
+                      Fuel Capacity:
                       {fuelData[truck.truck_id]?.fuel_percentage || 0}%
                     </p>
                     <div className="w-full bg-gray-200 h-2 rounded-lg mt-1">
@@ -61,9 +65,11 @@ const TruckListCard = ({ fuelData = {} }) => {
                     </div>
                   </div>
                 </div>
-                <Button className={buttonVariants({ variant: "primary" })}>
-                  View Truck
-                </Button>
+                <Link to={`/view-truck/${truck.id}`}>
+                  <Button className={buttonVariants({ variant: "primary" })}>
+                    View Truck
+                  </Button>
+                </Link>
               </div>
             ))}
         </div>

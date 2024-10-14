@@ -1,4 +1,5 @@
 import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
 import { ref, onValue, getDatabase } from "firebase/database";
 
 const firebaseConfig = {
@@ -18,5 +19,6 @@ const app = initializeApp(firebaseConfig);
 
 // Initilaing Realtime Database
 const database = getDatabase(app);
+const auth = getAuth(app);
 
-export { database, ref, onValue };
+export { database, ref, onValue, auth };

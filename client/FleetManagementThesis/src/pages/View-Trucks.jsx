@@ -1,16 +1,72 @@
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { Button, buttonVariants } from "../components/ui/button";
-import Spinner from "../components/Spinner";
-import useFetch from "@/hooks/useFetch";
+import Modal from "@/components/modal"; // Assume you have a modal component
+import Spinner from "@/components/Spinner";
 
 const ViewTrucks = () => {
-  // Destructure the custom hook's response to fetch driver data
-  const {
-    data: trucks, // Contain the fetch data
-    isLoading, // Boolean flag for loading state
-    error, // Error encountered during fetching
-  } = useFetch("/vehicles");
+  const [trucks, setTrucks] = useState([]);
+  const [isLoading, setIsLoading] = useState();
+  const [error, isError] = useState();
+  const [selectedTruck, setSelectedTruck] = useState(null);
+  const [drivers, setDrivers] = useState([]);
+  const [selectedDriver, setSelectedDriver] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
 
-  // Return View trucks
+  useEffect(() => {
+    // Fetch the trucks and drivers data
+    const fetchData = async () => {
+      try {
+        const trucksResponse = await axios.get(
+          `http://localhost:7000/api/v1/vehicles`
+        );
+        const driversResponse = await axios.get(
+          `http://localhost:7000/api/v1/drivers`
+        );
+        setTrucks(trucksResponse.data.data);
+        setDrivers(driversResponse.data.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleAssignDriver = async (truckId) => {
+    try {
+      await axios.put(
+        `http://localhost:7000/api/v1/vehicles/add-driver/${truckId}`,
+        {
+          driverId: selectedDriver,
+        }
+      );
+      // Close modal and reload the trucks list
+      setShowModal(false);
+      setSelectedTruck(null);
+      setSelectedDriver(null);
+      const trucksResponse = await axios.get(
+        `http://localhost:7000/api/v1/vehicles`
+      );
+      setTrucks(trucksResponse.data.data); // Re-fetch trucks to reflect the assigned driver
+    } catch (error) {
+      console.error("Error assigning driver:", error);
+    }
+  };
+
+  const handleOpenModal = (truck) => {
+    setSelectedTruck(truck);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedTruck(null);
+    setSelectedDriver(null);
+  };
+
   return (
     <div className="w-100 mx-auto bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">View Trucks</h2>
@@ -37,10 +93,10 @@ const ViewTrucks = () => {
               <tr key={truck.truck_id} className="text-center">
                 <td className="py-2 px-4 border-b">{truck.truck_id}</td>
                 <td className="py-2 px-4 border-b">
-                  {truck.driver &&
-                  truck.driver.firstName &&
-                  truck.driver.lastName ? (
-                    `${truck.driver.lastName}, ${truck.driver.firstName} `
+                  {truck.driver.name &&
+                  truck.driver.name.firstName &&
+                  truck.driver.name.lastName ? (
+                    `${truck.driver.name.lastName}, ${truck.driver.name.firstName} `
                   ) : (
                     <span className="text-gray-500"> No Driver Assigned</span>
                   )}
@@ -51,20 +107,22 @@ const ViewTrucks = () => {
                 <td className="py-2 px-4 border-b">{truck.transmission}</td>
                 <td className="py-2 px-4 border-b">{truck.odometer}</td>
                 <td className="py-2 px-4 border-b ">
-                  <Button
-                    className={`${buttonVariants({
-                      variant: "primary",
-                    })} + px-2 py-1 mr-2`}
-                  >
-                    View
-                  </Button>
-                  <Button
-                    className={`${buttonVariants({
-                      variant: "destructive",
-                    })} + px-2 py-1`}
-                  >
-                    Delete
-                  </Button>
+                  {!truck.driver.name && (
+                    <Button
+                      onClick={() => handleOpenModal(truck)}
+                      className="bg-blue-500 text-white mb-1"
+                    >
+                      Assign Driver
+                    </Button>
+                  )}
+                  {truck.driver && (
+                    <Button
+                      onClick={() => navigate(`/edit-truck/${truck.id}`)}
+                      className="bg-gray-500 text-white"
+                    >
+                      Edit Truck
+                    </Button>
+                  )}
                 </td>
               </tr>
             ))}
@@ -72,6 +130,46 @@ const ViewTrucks = () => {
         </table>
       ) : (
         <p className="text-gray-600">No trucks available.</p>
+      )}
+
+      {showModal && (
+        <Modal onClose={handleCloseModal}>
+          <h2 className="text-xl font-semibold mb-4">Assign Driver</h2>
+          <form onSubmit={(e) => e.preventDefault()}>
+            <div className="mb-4">
+              {drivers.map((driver) => (
+                <div key={driver.id} className="mb-2">
+                  <label className="inline-flex items-center">
+                    <input
+                      type="radio"
+                      name="driver"
+                      value={driver.id}
+                      onChange={() => setSelectedDriver(driver.id)}
+                      checked={selectedDriver === driver.id}
+                    />
+                    <span className="ml-2">{`${driver.name.lastName}, ${driver.name.firstName}`}</span>
+                  </label>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-end space-x-4">
+              <Button
+                onClick={() => handleAssignDriver(selectedTruck.id)}
+                className="bg-green-500 text-white"
+                disabled={!selectedDriver}
+              >
+                Assign
+              </Button>
+              <Button
+                onClick={handleCloseModal}
+                className="bg-gray-500 text-white"
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </Modal>
       )}
     </div>
   );
