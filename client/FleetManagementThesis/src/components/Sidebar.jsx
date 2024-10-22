@@ -32,7 +32,7 @@ const Sidebar = () => {
           Admin Dashboard
         </h1>
         <ul className="mt-5">
-          <NavLink to="/" className={linkClass}>
+          <NavLink to="/dashboard" className={linkClass}>
             <div className="flex items-center">
               <GrDashboard className="text-2xl" />
               {isOpen && <span className="ml-2">Dashboard</span>}

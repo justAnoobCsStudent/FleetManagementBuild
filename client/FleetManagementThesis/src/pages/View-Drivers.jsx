@@ -1,17 +1,64 @@
 import { Button, buttonVariants } from "../components/ui/button";
 import Spinner from "@/components/Spinner";
-import useFetch from "@/hooks/useFetch";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import Modal from "@/components/Modal";
+import axios from "axios";
 
 const ViewDrivers = () => {
-  // Destructure the custom hook's response to fetch driver data
-  const {
-    data: drivers, // Contain the fetch data
-    isLoading, // Boolean flag for loading state
-    error, // Error encountered during fetching
-  } = useFetch("/drivers");
+  const [drivers, setDrivers] = useState([]);
+  const [isLoading, setIsLoading] = useState();
+  const [error, setError] = useState();
 
-  // Return View drivers
+  const [selectedDriver, setSelectedDriver] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  useEffect(() => {
+    // Fetch the drivers data
+    const fetchDrivers = async () => {
+      try {
+        const driversResponse = await axios.get(
+          `http://localhost:7000/api/v1/drivers`
+        );
+        setDrivers(driversResponse.data.data);
+        console.log(driversResponse.data.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchDrivers();
+  }, []);
+
+  // Function to open the delete confirmation modal
+  const handleOpenDeleteModal = (driver) => {
+    setSelectedDriver(driver);
+    setShowDeleteModal(true);
+  };
+
+  // Function to close the delete confirmation modal
+  const handleCloseDeleteModal = () => {
+    setSelectedDriver(null);
+    setShowDeleteModal(false);
+  };
+
+  // Function to handle deleting a driver
+  const handleDeleteDriver = async () => {
+    try {
+      await axios.delete(
+        `http://localhost:7000/api/v1/drivers/${selectedDriver.id}`
+      );
+      // Close modal after deletion
+      setShowDeleteModal(false);
+
+      const driversResponse = await axios.get(
+        `http://localhost:7000/api/v1/drivers`
+      );
+      setIsDrivers(driversResponse.data.data); // Re-fetch drivers to reflect the assigned driver
+    } catch (error) {
+      console.error("Error deleting driver:", error);
+    }
+  };
   return (
     <div className="w-100 mx-auto bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">View Drivers</h2>
@@ -45,12 +92,12 @@ const ViewDrivers = () => {
                 <td className="py-2 px-4 border-b">{driver.age}</td>
                 <td className="py-2 px-4 border-b">{driver.phoneNumber}</td>
                 <td className="py-2 px-4 border-b">{driver.gender}</td>
-                <td className="py-2 px-4 border-b ">
+                <td className="py-2 px-4 border-b flex flex-col">
                   <Link to={`/view-driver/${driver.id}`}>
                     <Button
                       className={`${buttonVariants({
                         variant: "primary",
-                      })} + px-2 py-1 mr-2`}
+                      })} + mb-1`}
                     >
                       View
                     </Button>
@@ -58,7 +105,8 @@ const ViewDrivers = () => {
                   <Button
                     className={`${buttonVariants({
                       variant: "destructive",
-                    })} + px-2 py-1`}
+                    })} + mb-1`}
+                    onClick={() => handleOpenDeleteModal(driver)}
                   >
                     Delete
                   </Button>
@@ -69,6 +117,30 @@ const ViewDrivers = () => {
         </table>
       ) : (
         <p className="text-gray-600">No drivers available.</p>
+      )}
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <Modal onClose={handleCloseDeleteModal}>
+          <h2 className="text-xl font-semibold mb-4">Confirm Delete</h2>
+          <p>
+            Are you sure you want to delete {selectedDriver?.name.firstName}{" "}
+            {selectedDriver?.name.lastName}?
+          </p>
+          <div className="flex justify-end space-x-4 mt-4">
+            <Button
+              onClick={handleDeleteDriver}
+              className="bg-red-500 text-white"
+            >
+              Delete Driver
+            </Button>
+            <Button
+              onClick={handleCloseDeleteModal}
+              className="bg-gray-500 text-white"
+            >
+              Cancel
+            </Button>
+          </div>
+        </Modal>
       )}
     </div>
   );

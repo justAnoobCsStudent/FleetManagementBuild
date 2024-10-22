@@ -21,4 +21,4 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const auth = getAuth(app);
 
-export { database, ref, onValue, auth };
+export { database, ref, onValue, auth, app };
