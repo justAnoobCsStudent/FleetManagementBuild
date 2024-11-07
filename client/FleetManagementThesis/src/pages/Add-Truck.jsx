@@ -1,11 +1,20 @@
 import React from "react";
-import { Button, buttonVariants } from "../components/ui/button";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
+import ClipLoader from "react-spinners/ClipLoader";
 import useValidateForm from "@/hooks/useValidateForm";
 import validateTruckForm from "@/utils/validateTruckForm";
 import useAddTruck from "@/hooks/useAddTruck";
 
 const AddTruck = () => {
-  // Set the initial form state to default values
   const initialFormState = {
     truck_id: "",
     unit: "",
@@ -15,63 +24,48 @@ const AddTruck = () => {
     odometer: "",
   };
 
-  // Destructure form handling utilities from useValidateForm hook
   const { formData, errors, handleChange, validate } = useValidateForm(
-    initialFormState, // Pass the initial form state
-    validateTruckForm // Validation function
+    initialFormState,
+    validateTruckForm
   );
 
-  // Destructure form submission handler from useAddDrivers hook
   const { handleSubmit, loading } = useAddTruck(
-    "/vehicles/register", // API endpoint to add truck
-    initialFormState, // Initial state of form submitted
-    validate // Validate form
+    "/vehicles/register",
+    initialFormState,
+    validate
   );
 
-  // Return add driver form
   return (
-    <div className="w-100 mx-auto bg-white p-6 rounded-lg shadow-md">
+    <div className="w-100 mx-auto bg-white p-6 rounded-lg shadow-md space-y-4">
       <h2 className="text-xl font-semibold mb-4">Add New Truck</h2>
-      <form onSubmit={(e) => handleSubmit(e, formData)}>
+      <form onSubmit={(e) => handleSubmit(e, formData)} className="space-y-4">
         {/* Unit */}
-        <div className="mb-4">
-          <label
-            htmlFor="unit"
-            className="block text-sm font-medium text-gray-700"
-          >
+        <div>
+          <Label htmlFor="unit" className="block mb-1">
             Unit
-          </label>
-          <input
-            type="text"
+          </Label>
+          <Input
             id="unit"
             name="unit"
             value={formData.unit}
             onChange={handleChange}
-            className={`mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-              errors.unit ? "border-red-500" : ""
-            }`}
+            className={errors.unit ? "border-red-500" : ""}
             required
           />
           {errors.unit && <p className="text-red-500 text-sm">{errors.unit}</p>}
         </div>
 
         {/* Plate Number */}
-        <div className="mb-4">
-          <label
-            htmlFor="plateNumber"
-            className="block text-sm font-medium text-gray-700"
-          >
+        <div>
+          <Label htmlFor="plateNumber" className="block mb-1">
             Plate Number
-          </label>
-          <input
-            type="text"
+          </Label>
+          <Input
             id="plateNumber"
             name="plateNumber"
             value={formData.plateNumber}
             onChange={handleChange}
-            className={`mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-              errors.plateNumber ? "border-red-500" : ""
-            }`}
+            className={errors.plateNumber ? "border-red-500" : ""}
             required
           />
           {errors.plateNumber && (
@@ -80,22 +74,16 @@ const AddTruck = () => {
         </div>
 
         {/* Color */}
-        <div className="mb-4">
-          <label
-            htmlFor="color"
-            className="block text-sm font-medium text-gray-700"
-          >
+        <div>
+          <Label htmlFor="color" className="block mb-1">
             Color
-          </label>
-          <input
-            type="text"
+          </Label>
+          <Input
             id="color"
             name="color"
             value={formData.color}
             onChange={handleChange}
-            className={`mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-              errors.color ? "border-red-500" : ""
-            }`}
+            className={errors.color ? "border-red-500" : ""}
             required
           />
           {errors.color && (
@@ -104,56 +92,53 @@ const AddTruck = () => {
         </div>
 
         {/* Transmission */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">
-            Transmission
-          </label>
-          <div className="mt-1 flex space-x-4">
-            <label className="inline-flex items-center">
+        <div>
+          <Label className="block mb-5">Transmission</Label>
+          <div className="flex space-x-4">
+            <Label className="inline-flex items-center">
               <input
                 type="radio"
                 name="transmission"
                 value="AT"
                 checked={formData.transmission === "AT"}
                 onChange={handleChange}
-                className="form-radio text-blue-600"
+                className="mr-2"
                 required
               />
-              <span className="ml-2">Automatic (AT)</span>
-            </label>
-            <label className="inline-flex items-center">
+              Automatic (AT)
+            </Label>
+            <Label className="inline-flex items-center">
               <input
                 type="radio"
                 name="transmission"
                 value="MT"
                 checked={formData.transmission === "MT"}
                 onChange={handleChange}
-                className="form-radio text-blue-600"
+                className="mr-2"
                 required
               />
-              <span className="ml-2">Manual (MT)</span>
-            </label>
+              Manual (MT)
+            </Label>
           </div>
         </div>
 
         {/* Truck ID Dropdown */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">
-            Truck ID
-          </label>
-          <select
-            name="truck_id"
-            value={formData.truck_id}
-            onChange={handleChange}
-            className={`w-full p-2 border border-gray-300 rounded-md ${
-              errors.truck_id ? "border-red-500" : ""
-            }`}
+        <div>
+          <Label className="block mb-1">Truck ID</Label>
+          <Select
+            onValueChange={(value) =>
+              handleChange({ target: { name: "truck_id", value } })
+            }
           >
-            <option value="">--Select Truck ID--</option>
-            <option value="TRUCK01">TRUCK 01</option>
-            <option value="TRUCK02">TRUCK 02</option>
-            <option value="TRUCK03">TRUCK 03</option>
-          </select>
+            <SelectTrigger className={errors.truck_id ? "border-red-500" : ""}>
+              <SelectValue placeholder="--Select Truck ID--" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="TRUCK01">TRUCK 01</SelectItem>
+              <SelectItem value="TRUCK02">TRUCK 02</SelectItem>
+              <SelectItem value="TRUCK03">TRUCK 03</SelectItem>
+            </SelectContent>
+          </Select>
           {errors.truck_id && (
             <p className="text-red-500 text-sm">{errors.truck_id}</p>
           )}
@@ -162,15 +147,9 @@ const AddTruck = () => {
         {/* Submit Button */}
         <div className="flex justify-center">
           {loading ? (
-            <ClipLoader color="#000" loading={isLoading} />
+            <ClipLoader color="#000" loading={loading} />
           ) : (
-            <Button
-              type="submit"
-              className={
-                "mt-4 w-full py-2 px-4 rounded-md shadow-md" +
-                buttonVariants({ variant: "primary" })
-              }
-            >
+            <Button type="submit" className="w-full mt-4">
               Submit
             </Button>
           )}

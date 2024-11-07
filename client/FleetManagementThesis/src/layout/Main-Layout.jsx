@@ -11,11 +11,11 @@ const MainLayout = () => {
       {/* Main Layout Wrapper */}
       <div className="flex flex-col h-screen">
         {/* Main content */}
-        <div className="flex flex-1">
+        <div className="flex flex-1 overflow-hidden">
           <Sidebar />
           <div className="flex-1 flex flex-col">
             <Navbar />
-            <main className="flex-1 bg-gray-100 p-6">
+            <main className="flex-1 overflow-y-auto bg-gray-100 p-6">
               <Outlet />
             </main>
             <Footer />

@@ -1,5 +1,8 @@
-import React, { useState } from "react";
-import { Button, buttonVariants } from "../components/ui/button";
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import useValidateForm from "@/hooks/useValidateForm";
 import validateDriverForm from "@/utils/validateDriverForm";
 import useAddDrivers from "@/hooks/useAddDrivers";
@@ -13,7 +16,7 @@ const AddDriver = () => {
     licenseNumber: "",
     age: "",
     phoneNumber: "",
-    gender: "", // Gender will now be a radio button group
+    gender: "",
   };
 
   const { formData, errors, handleChange, validate } = useValidateForm(
@@ -28,27 +31,21 @@ const AddDriver = () => {
   );
 
   return (
-    <div className="w=100 mx-auto bg-white p-6 rounded-lg shadow-md">
+    <div className="w-100 mx-auto bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">Add New Driver</h2>
-      <form onSubmit={(e) => handleSubmit(e, formData)}>
+      <form onSubmit={(e) => handleSubmit(e, formData)} className="space-y-4">
         {/* First Name */}
-        <div className="mb-4">
-          <label
-            htmlFor="firstName"
-            className="block text-sm font-medium text-gray-700"
-          >
+        <div>
+          <Label htmlFor="firstName" className="mb-1">
             First Name
-          </label>
-          <input
-            type="text"
+          </Label>
+          <Input
             id="firstName"
             name="firstName"
             value={formData.firstName}
             onChange={handleChange}
-            className={`mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-              errors.firstName ? "border-red-500" : ""
-            }`}
             required
+            className={errors.firstName ? "border-red-500" : ""}
           />
           {errors.firstName && (
             <p className="text-red-500 text-sm">{errors.firstName}</p>
@@ -56,23 +53,17 @@ const AddDriver = () => {
         </div>
 
         {/* Last Name */}
-        <div className="mb-4">
-          <label
-            htmlFor="lastName"
-            className="block text-sm font-medium text-gray-700"
-          >
+        <div>
+          <Label htmlFor="lastName" className="mb-1">
             Last Name
-          </label>
-          <input
-            type="text"
+          </Label>
+          <Input
             id="lastName"
             name="lastName"
             value={formData.lastName}
             onChange={handleChange}
-            className={`mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-              errors.lastName ? "border-red-500" : ""
-            }`}
             required
+            className={errors.lastName ? "border-red-500" : ""}
           />
           {errors.lastName && (
             <p className="text-red-500 text-sm">{errors.lastName}</p>
@@ -80,23 +71,17 @@ const AddDriver = () => {
         </div>
 
         {/* Middle Initial */}
-        <div className="mb-4">
-          <label
-            htmlFor="middleInitial"
-            className="block text-sm font-medium text-gray-700"
-          >
+        <div>
+          <Label htmlFor="middleInitial" className="mb-1">
             Middle Initial
-          </label>
-          <input
-            type="text"
+          </Label>
+          <Input
             id="middleInitial"
             name="middleInitial"
             value={formData.middleInitial}
             onChange={handleChange}
-            className={`mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-              errors.middleInitial ? "border-red-500" : ""
-            }`}
             required
+            className={errors.middleInitial ? "border-red-500" : ""}
           />
           {errors.middleInitial && (
             <p className="text-red-500 text-sm">{errors.middleInitial}</p>
@@ -104,23 +89,17 @@ const AddDriver = () => {
         </div>
 
         {/* License Number */}
-        <div className="mb-4">
-          <label
-            htmlFor="licenseNumber"
-            className="block text-sm font-medium text-gray-700"
-          >
+        <div>
+          <Label htmlFor="licenseNumber" className="mb-1">
             License Number
-          </label>
-          <input
-            type="text"
+          </Label>
+          <Input
             id="licenseNumber"
             name="licenseNumber"
             value={formData.licenseNumber}
             onChange={handleChange}
-            className={`mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-              errors.licenseNumber ? "border-red-500" : ""
-            }`}
             required
+            className={errors.licenseNumber ? "border-red-500" : ""}
           />
           {errors.licenseNumber && (
             <p className="text-red-500 text-sm">{errors.licenseNumber}</p>
@@ -128,45 +107,34 @@ const AddDriver = () => {
         </div>
 
         {/* Age */}
-        <div className="mb-4">
-          <label
-            htmlFor="age"
-            className="block text-sm font-medium text-gray-700"
-          >
+        <div>
+          <Label htmlFor="age" className="mb-1">
             Age
-          </label>
-          <input
+          </Label>
+          <Input
             type="number"
             id="age"
             name="age"
             value={formData.age}
             onChange={handleChange}
-            className={`mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-              errors.age ? "border-red-500" : ""
-            }`}
             required
+            className={errors.age ? "border-red-500" : ""}
           />
           {errors.age && <p className="text-red-500 text-sm">{errors.age}</p>}
         </div>
 
         {/* Phone Number */}
-        <div className="mb-4">
-          <label
-            htmlFor="phoneNumber"
-            className="block text-sm font-medium text-gray-700"
-          >
+        <div>
+          <Label htmlFor="phoneNumber" className="mb-1">
             Phone Number
-          </label>
-          <input
-            type="text"
+          </Label>
+          <Input
             id="phoneNumber"
             name="phoneNumber"
             value={formData.phoneNumber}
             onChange={handleChange}
-            className={`mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${
-              errors.phoneNumber ? "border-red-500" : ""
-            }`}
             required
+            className={errors.phoneNumber ? "border-red-500" : ""}
           />
           {errors.phoneNumber && (
             <p className="text-red-500 text-sm">{errors.phoneNumber}</p>
@@ -174,43 +142,25 @@ const AddDriver = () => {
         </div>
 
         {/* Gender - Radio Buttons */}
-        <div className="mb-4">
-          <label
-            htmlFor="gender"
-            className="block text-sm font-medium text-gray-700"
+        <div>
+          <Label className="block mb-1">Gender</Label>
+          <RadioGroup
+            value={formData.gender}
+            onValueChange={(value) =>
+              handleChange({ target: { name: "gender", value } })
+            }
+            className="flex space-x-4"
+            required
           >
-            Gender
-          </label>
-          <div className="mt-2 flex">
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                name="gender"
-                value="Male"
-                checked={formData.gender === "Male"}
-                onChange={handleChange}
-                className={`form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out ${
-                  errors.gender ? "border-red-500" : ""
-                }`}
-                required
-              />
-              <span className="ml-2">Male</span>
-            </label>
-            <label className="inline-flex items-center ml-4">
-              <input
-                type="radio"
-                name="gender"
-                value="Female"
-                checked={formData.gender === "Female"}
-                onChange={handleChange}
-                className={`form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out ${
-                  errors.gender ? "border-red-500" : ""
-                }`}
-                required
-              />
-              <span className="ml-2">Female</span>
-            </label>
-          </div>
+            <div className="flex items-center">
+              <RadioGroupItem value="Male" id="male" className="mr-2" />
+              <Label htmlFor="male">Male</Label>
+            </div>
+            <div className="flex items-center">
+              <RadioGroupItem value="Female" id="female" className="mr-2" />
+              <Label htmlFor="female">Female</Label>
+            </div>
+          </RadioGroup>
           {errors.gender && (
             <p className="text-red-500 text-sm">{errors.gender}</p>
           )}

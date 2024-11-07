@@ -15,20 +15,19 @@ const Sidebar = () => {
     setIsOpen(!isOpen);
   };
 
-  const linkClass = ({ isActive }) => {
-    return isActive
+  const linkClass = ({ isActive }) =>
+    isActive
       ? "text-white bg-black mt-2 p-2 rounded block"
       : "mt-2 p-2 hover:bg-gray-700 rounded block text-white";
-  };
 
   return (
     <div
-      className={`bg-gray-800 text-white h-screen${
+      className={`bg-gray-800 text-white h-screen ${
         isOpen ? "w-64" : "w-20"
-      } p-5 flex flex-col justify-between transition-width duration-300`}
+      } p-5 flex flex-col justify-between transition-all duration-300`}
     >
       <div className="flex-grow">
-        <h1 className={`mt-5 text-xl font-bold ${!isOpen && "hidden"}`}>
+        <h1 className={`mt-2 text-xl font-bold ${!isOpen && "hidden"}`}>
           Admin Dashboard
         </h1>
         <ul className="mt-5">
@@ -84,7 +83,6 @@ const Sidebar = () => {
           </NavLink>
         </ul>
       </div>
-
       <div className="flex justify-center">
         <button className="text-3xl" onClick={toggleSidebar}>
           <PiArrowSquareLeftBold
@@ -97,4 +95,5 @@ const Sidebar = () => {
     </div>
   );
 };
+
 export default Sidebar;

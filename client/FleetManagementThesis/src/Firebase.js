@@ -1,12 +1,14 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { ref, onValue, getDatabase } from "firebase/database";
+import { getDatabase, ref, onValue } from "firebase/database";
+import { getFirestore } from "firebase/firestore"; // Firestore import
 
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBtZd5eYWlyZ8bJS3crweBRKhWKss-BcWk",
+  authDomain: "thesis-demo-87a8e.firebaseapp.com",
   databaseURL:
     "https://thesis-demo-87a8e-default-rtdb.asia-southeast1.firebasedatabase.app/",
-  authDomain: "thesis-demo-87a8e.firebaseapp.com",
   projectId: "thesis-demo-87a8e",
   storageBucket: "thesis-demo-87a8e.appspot.com",
   messagingSenderId: "742717130814",
@@ -14,11 +16,13 @@ const firebaseConfig = {
   measurementId: "G-FLPKNZ1WV3",
 };
 
-// Initializing Firebase
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initilaing Realtime Database
-const database = getDatabase(app);
+// Initialize Firebase services
 const auth = getAuth(app);
+const database = getDatabase(app);
+const firestore = getFirestore(app); // Firestore initialization
 
-export { database, ref, onValue, auth, app };
+// Export Firebase services
+export { app, auth, database, firestore, ref, onValue };
