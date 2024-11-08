@@ -143,7 +143,7 @@ const AddDriver = () => {
 
         {/* Gender - Radio Buttons */}
         <div>
-          <Label className="block mb-1">Gender</Label>
+          <Label className="block mb-4">Gender</Label>
           <RadioGroup
             value={formData.gender}
             onValueChange={(value) =>
@@ -168,13 +168,12 @@ const AddDriver = () => {
 
         {/* Submit Button */}
         <div className="flex justify-center">
-          {loading ? (
-            <ClipLoader color="#000" loading={loading} />
-          ) : (
-            <Button type="submit" className="mt-4 w-full">
-              Submit
-            </Button>
-          )}
+          <Button
+            type="submit"
+            className="bg-green-500 hover:bg-green-600 text-white mt-4 w-full"
+          >
+            Submit
+          </Button>
         </div>
       </form>
     </div>

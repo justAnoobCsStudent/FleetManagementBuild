@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const ViewDriver = () => {
-  const { id } = useParams(); // Get driver ID from the URL
+  const { id } = useParams(); // Get driver ID from URL
   const [driver, setDriver] = useState(null); // Driver data state
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(""); // Error state
@@ -29,9 +32,18 @@ const ViewDriver = () => {
           `http://localhost:7000/api/v1/drivers/${id}`
         ); // API endpoint
         setDriver(response.data.data);
-        setLoading(false);
+        setFormData({
+          firstName: response.data.data.name.firstName,
+          lastName: response.data.data.name.lastName,
+          middleInitial: response.data.data.name.middleInitial,
+          licenseNumber: response.data.data.licenseNumber,
+          age: response.data.data.age,
+          phoneNumber: response.data.data.phoneNumber,
+          gender: response.data.data.gender,
+        });
       } catch (error) {
         setError("Error fetching driver data.");
+      } finally {
         setLoading(false);
       }
     };
@@ -47,67 +59,39 @@ const ViewDriver = () => {
     });
   };
 
-  // Handle form submission for updating truck details
+  // Handle form submission for updating driver details
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
       await axios.put(`http://localhost:7000/api/v1/drivers/${id}`, formData); // Update API call
-      setIsEditing(false); // Switch back to view mode after saving
       setDriver({ ...driver, ...formData });
+      setIsEditing(false); // Switch back to view mode after saving
     } catch (error) {
       setError("Error updating driver data.");
     }
   };
 
-  // Handle entering edit mode and populating formData with current driver data
-  const handleEditClick = () => {
-    setFormData({
-      firstName: driver.name.firstName,
-      lastName: driver.name.lastName,
-      middleInitial: driver.name.middleInitial,
-      licenseNumber: driver.licenseNumber,
-      age: driver.age,
-      phoneNumber: driver.phoneNumber,
-      gender: driver.gender,
-    });
-    setIsEditing(true);
-  };
+  // Handle entering edit mode
+  const handleEditClick = () => setIsEditing(true);
 
   // Handle cancel edit mode
-  const handleCancelEdit = () => {
-    setIsEditing(false);
-    setFormData({
-      firstName: driver.name.firstName,
-      lastName: driver.name.lastName,
-      middleInitial: driver.name.middleInitial,
-      licenseNumber: driver.licenseNumber,
-      age: driver.age,
-      phoneNumber: driver.phoneNumber,
-      gender: driver.gender,
-    });
-  };
+  const handleCancelEdit = () => setIsEditing(false);
 
-  if (loading) {
-    return <div>Loading driver details...</div>;
-  }
-
-  if (error) {
-    return <div>{error}</div>;
-  }
+  if (loading) return <div>Loading driver details...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="container mx-auto p-6">
       <div className="w-100 mx-auto bg-white p-6 rounded-lg shadow-lg">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold mb-4">Driver Details</h1>
-
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold">Driver Details</h1>
           {!isEditing && (
-            <button
+            <Button
               onClick={handleEditClick}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+              className="bg-blue-500 hover:bg-blue-600 text-white"
             >
               Edit Driver
-            </button>
+            </Button>
           )}
         </div>
 
@@ -115,130 +99,113 @@ const ViewDriver = () => {
           // Edit Mode Form
           <form onSubmit={handleUpdate}>
             <div className="mb-4">
-              <label htmlFor="unit" className="block font-semibold">
-                First Name
-              </label>
-              <input
+              <Label>First Name</Label>
+              <Input
                 type="text"
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleChange}
-                className="w-full p-2 border rounded"
                 required
               />
             </div>
 
             <div className="mb-4">
-              <label htmlFor="plateNumber" className="block font-semibold">
-                Last Name
-              </label>
-              <input
+              <Label>Last Name</Label>
+              <Input
                 type="text"
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleChange}
-                className="w-full p-2 border rounded"
                 required
               />
             </div>
 
             <div className="mb-4">
-              <label htmlFor="color" className="block font-semibold">
-                Middle Initial
-              </label>
-              <input
+              <Label>Middle Initial</Label>
+              <Input
                 type="text"
                 name="middleInitial"
                 value={formData.middleInitial}
                 onChange={handleChange}
-                className="w-full p-2 border rounded"
-                required
               />
             </div>
 
             <div className="mb-4">
-              <label htmlFor="color" className="block font-semibold">
-                License Number
-              </label>
-              <input
+              <Label>License Number</Label>
+              <Input
                 type="text"
                 name="licenseNumber"
                 value={formData.licenseNumber}
                 onChange={handleChange}
-                className="w-full p-2 border rounded"
                 required
               />
             </div>
 
             <div className="mb-4">
-              <label htmlFor="color" className="block font-semibold">
-                Age
-              </label>
-              <input
-                type="text"
+              <Label>Age</Label>
+              <Input
+                type="number"
                 name="age"
                 value={formData.age}
                 onChange={handleChange}
-                className="w-full p-2 border rounded"
                 required
               />
             </div>
 
             <div className="mb-4">
-              <label htmlFor="color" className="block font-semibold">
-                Phone Number
-              </label>
-              <input
+              <Label>Phone Number</Label>
+              <Input
                 type="text"
                 name="phoneNumber"
                 value={formData.phoneNumber}
                 onChange={handleChange}
-                className="w-full p-2 border rounded"
                 required
               />
             </div>
 
             <div className="mb-4">
-              <label className="block font-semibold">Gender</label>
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="gender"
-                  value="AT"
-                  checked={formData.gender === "Male"}
-                  onChange={handleChange}
-                />
-                <span className="ml-2">Male</span>
-              </label>
-              <label className="inline-flex items-center ml-4">
-                <input
-                  type="radio"
-                  name="gender"
-                  value="Female"
-                  checked={formData.gender === "Female"}
-                  onChange={handleChange}
-                />
-                <span className="ml-2">Female</span>
-              </label>
+              <Label>Gender</Label>
+              <div className="flex space-x-4">
+                <Label className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="gender"
+                    value="Male"
+                    checked={formData.gender === "Male"}
+                    onChange={handleChange}
+                  />
+                  <span>Male</span>
+                </Label>
+                <Label className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    name="gender"
+                    value="Female"
+                    checked={formData.gender === "Female"}
+                    onChange={handleChange}
+                  />
+                  <span>Female</span>
+                </Label>
+              </div>
             </div>
 
             <div className="flex space-x-4">
-              <button
+              <Button
                 type="submit"
-                className="bg-blue-500 text-white px-4 py-2 rounded"
+                className="bg-green-500 hover:bg-green-600 text-white"
               >
                 Save
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
                 onClick={handleCancelEdit}
-                className="bg-gray-500 text-white px-4 py-2 rounded"
+                className="bg-red-500 hover:bg-red-600 text-white"
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </form>
         ) : (
+          // View Mode
           <div>
             <p>
               <strong>First Name:</strong> {driver.name.firstName}

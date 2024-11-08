@@ -74,7 +74,7 @@ const Dashboard = () => {
 
   // Return Dashboard
   return (
-    <div className="h-full mb-10 px-4 sm:px-6 lg:px-8">
+    <div className="h-full px-4 sm:px-6 lg:px-8">
       <h1 className="text-xl font-semibold mb-4">GPS Tracking</h1>
 
       {/* Map Section with responsive height */}
@@ -83,7 +83,7 @@ const Dashboard = () => {
       </div>
 
       {/* Truck List Section */}
-      <div className="w-full">
+      <div className="w-full pb-4">
         <h2 className="text-xl font-semibold mb-4">Truck List</h2>
         <TruckListCard fuelData={fuelData} /> {/* Pass fuelData directly */}
       </div>

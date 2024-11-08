@@ -18,7 +18,7 @@ const TruckListCard = ({ fuelData = {} }) => {
 
   // Return Truck list card
   return (
-    <div className="bg-white shadow-md rounded-lg p-6 mb-6 w-full">
+    <div className="bg-white shadow-md rounded-lg p-6 w-full">
       {isLoading ? ( // Loader for data fetching
         <Spinner loading={isLoading} />
       ) : error ? ( // Display error messages in fetching data
@@ -66,7 +66,7 @@ const TruckListCard = ({ fuelData = {} }) => {
                   </div>
                 </div>
                 <Link to={`/view-truck/${truck.id}`}>
-                  <Button className={buttonVariants({ variant: "primary" })}>
+                  <Button className="bg-gray-500 hover:bg-gray-600 text-white">
                     View Truck
                   </Button>
                 </Link>

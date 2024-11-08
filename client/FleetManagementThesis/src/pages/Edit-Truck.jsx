@@ -184,14 +184,17 @@ const EditTruck = () => {
 
         {/* Buttons */}
         <div className="flex space-x-4">
-          <Button type="submit" variant="primary" className="w-full">
+          <Button
+            type="submit"
+            className="bg-green-500 hover:bg-green-600 text-white w-full"
+          >
             Save
           </Button>
           <Button
             type="button"
             variant="secondary"
             onClick={handleCancelEdit}
-            className="w-full"
+            className="bg-red-500 hover:bg-red-600 text-white w-full"
           >
             Cancel
           </Button>

@@ -9,7 +9,6 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
-import ClipLoader from "react-spinners/ClipLoader";
 import useValidateForm from "@/hooks/useValidateForm";
 import validateTruckForm from "@/utils/validateTruckForm";
 import useAddTruck from "@/hooks/useAddTruck";
@@ -146,13 +145,12 @@ const AddTruck = () => {
 
         {/* Submit Button */}
         <div className="flex justify-center">
-          {loading ? (
-            <ClipLoader color="#000" loading={loading} />
-          ) : (
-            <Button type="submit" className="w-full mt-4">
-              Submit
-            </Button>
-          )}
+          <Button
+            type="submit"
+            className="bg-green-500 hover:bg-green-600 text-white mt-4 w-full"
+          >
+            Submit
+          </Button>
         </div>
       </form>
     </div>

@@ -89,7 +89,7 @@ const ViewTruck = () => {
   }
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto">
       <h1 className="text-xl font-bold mb-4">Truck Details</h1>
       <h2 className="text-xl font-semibold mb-4">GPS Tracking</h2>
 
@@ -101,6 +101,7 @@ const ViewTruck = () => {
       <Card className="bg-white shadow-lg">
         <CardHeader>
           <h3 className="text-lg font-semibold">Truck Information</h3>
+          <hr className="w-auro" />
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
@@ -113,8 +114,8 @@ const ViewTruck = () => {
             <p>
               <strong>Driver:</strong>
               {truck.driver.name
-                ? `${truck.driver.name.lastName}, ${truck.driver.name.firstName}`
-                : "No Driver Assigned"}
+                ? ` ${truck.driver.name.lastName}, ${truck.driver.name.firstName}`
+                : " No Driver Assigned"}
             </p>
             <p>
               <strong>Plate Number:</strong> {truck.plateNumber}
