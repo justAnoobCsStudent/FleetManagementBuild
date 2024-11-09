@@ -47,7 +47,14 @@ const GeoFence = ({ truckPosition }) => {
     return () => clearTimeout(exitTimer);
   }, [truckPosition, isInside, isOutside]);
 
-  return <Polygon positions={polyLine} color="blue" fillOpacity={0.5} />;
+  return (
+    <Polygon
+      positions={polyLine}
+      color="rgba(0, 0, 255, 0.4)" // Semi-transparent blue border
+      fillColor="rgba(0, 0, 255, 0.2)" // Light blue fill
+      fillOpacity={0.2} // Less visible fill
+    />
+  );
 };
 
 export default GeoFence;

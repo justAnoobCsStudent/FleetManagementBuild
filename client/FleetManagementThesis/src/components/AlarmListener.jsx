@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { ref, onValue, off } from "firebase/database"; // Import off for removing listeners
-import { database } from "../Firebase"; // Adjust the path to your Firebase setup
+import { ref, onValue } from "firebase/database"; // Import off for removing listeners
+import { database, firestore } from "../Firebase"; // Adjust the path to your Firebase setup
+import { collection, addDoc, Timestamp } from "firebase/firestore"; // Firestore imports
 import io from "socket.io-client"; // Import WebSocket client
 import { toast } from "react-toastify"; // Import toast
 
@@ -25,7 +26,7 @@ const AlarmListener = () => {
 
         // Check if fuelData exists and loop through all records for the truck
         if (fuelData) {
-          Object.values(fuelData).forEach((entry) => {
+          Object.values(fuelData).forEach(async (entry) => {
             const currentTime = Date.now();
             const lastTime = lastNotificationTime[truckId] || 0;
 
@@ -53,6 +54,18 @@ const AlarmListener = () => {
                 ...prevTimes,
                 [truckId]: currentTime,
               }));
+
+              // Store the alarm event in Firestore
+              try {
+                await addDoc(collection(firestore, "alarms"), {
+                  truckId,
+                  timestamp: Timestamp.fromDate(new Date(currentTime)),
+                  message: `Fuel theft detected for ${truckId}!`,
+                });
+                console.log("Alarm data added to Firestore");
+              } catch (error) {
+                console.error("Error adding alarm data to Firestore:", error);
+              }
             } else if (entry.isAlarm === false) {
               // Reset the last notification time when the alarm is turned off
               setLastNotificationTime((prevTimes) => ({
