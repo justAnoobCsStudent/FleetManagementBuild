@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { toast } from "react-toastify"; // Import toast
+import "react-toastify/dist/ReactToastify.css"; // Import toast CSS
 import useValidateForm from "@/hooks/useValidateForm";
 import validateDriverForm from "@/utils/validateDriverForm";
 import useAddDrivers from "@/hooks/useAddDrivers";
@@ -27,7 +29,17 @@ const AddDriver = () => {
   const { handleSubmit, loading } = useAddDrivers(
     "/drivers/register",
     initialFormState,
-    validate
+    validate,
+    {
+      onSuccess: () => {
+        toast.success("Driver added successfully!", { position: "top-right" });
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to add driver.", {
+          position: "top-right",
+        });
+      },
+    }
   );
 
   return (
@@ -171,8 +183,9 @@ const AddDriver = () => {
           <Button
             type="submit"
             className="bg-green-500 hover:bg-green-600 text-white mt-4 w-full"
+            disabled={loading}
           >
-            Submit
+            {loading ? <ClipLoader size={20} color="#ffffff" /> : "Submit"}
           </Button>
         </div>
       </form>

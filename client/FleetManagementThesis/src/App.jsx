@@ -3,6 +3,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import AddDriver from "./pages/Add-Driver.jsx";
 import AddTruck from "./pages/Add-Truck.jsx";
 import NotFoundPage from "./pages/Not-Found.jsx";
+import AddAdmin from "./pages/Add-Admin.jsx";
 import "./App.css";
 import {
   Route,
@@ -19,10 +20,12 @@ import ViewDriver from "./pages/View-Driver.jsx";
 import EditTruck from "./pages/Edit-Truck.jsx";
 import Login from "./pages/Login.jsx";
 import IsLoggedIn from "./components/IsLoggedIn.jsx";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AlarmListener from "./components/AlarmListener.jsx";
 import AuthListener from "./components/AuthListener.jsx";
+import ViewAdmins from "./pages/View-Admins.jsx";
+import EditAdmin from "./pages/Edit-Admin.jsx";
 
 // Defining router using createBrowserRouter and createRoutesFromElements
 const router = createBrowserRouter(
@@ -65,6 +68,23 @@ const router = createBrowserRouter(
             </IsLoggedIn>
           }
         />
+        <Route
+          path="/add-admin"
+          element={
+            <IsLoggedIn>
+              <AddAdmin />
+            </IsLoggedIn>
+          }
+        />
+        <Route
+          path="/view-admins"
+          element={
+            <IsLoggedIn>
+              <ViewAdmins />
+            </IsLoggedIn>
+          }
+        />
+
         <Route
           path="/view-drivers"
           element={
@@ -119,6 +139,15 @@ const router = createBrowserRouter(
             </IsLoggedIn>
           }
         />
+        <Route
+          path="/edit-admin/:id"
+          element={
+            <IsLoggedIn>
+              <EditAdmin />
+            </IsLoggedIn>
+          }
+        />
+
         {/* Catch all route for all pages missing or not existing */}
         <Route path="*" element={<NotFoundPage />} />
       </Route>

@@ -9,6 +9,8 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "react-toastify"; // Import toast
+import "react-toastify/dist/ReactToastify.css"; // Import toast CSS
 import useValidateForm from "@/hooks/useValidateForm";
 import validateTruckForm from "@/utils/validateTruckForm";
 import useAddTruck from "@/hooks/useAddTruck";
@@ -31,7 +33,17 @@ const AddTruck = () => {
   const { handleSubmit, loading } = useAddTruck(
     "/vehicles/register",
     initialFormState,
-    validate
+    validate,
+    {
+      onSuccess: () => {
+        toast.success("Truck added successfully!", { position: "top-right" });
+      },
+      onError: (error) => {
+        toast.error(error.message || "Failed to add truck.", {
+          position: "top-right",
+        });
+      },
+    }
   );
 
   return (
@@ -148,8 +160,9 @@ const AddTruck = () => {
           <Button
             type="submit"
             className="bg-green-500 hover:bg-green-600 text-white mt-4 w-full"
+            disabled={loading}
           >
-            Submit
+            {loading ? "Submitting..." : "Submit"}
           </Button>
         </div>
       </form>

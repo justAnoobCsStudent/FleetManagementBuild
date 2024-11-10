@@ -8,9 +8,14 @@ import {
   PiArrowSquareLeftBold,
 } from "react-icons/pi";
 import { RiUserSearchLine, RiUserAddLine } from "react-icons/ri";
+import { FiUserPlus } from "react-icons/fi"; // Icon for Add Admin
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
+
+  // Check the user's role from localStorage
+  const userRole = localStorage.getItem("role");
+
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
@@ -81,6 +86,29 @@ const Sidebar = () => {
               {isOpen && <span className="ml-2">Report</span>}
             </div>
           </NavLink>
+
+          {/* Conditionally render the Add Admin link if the user is a superadmin */}
+          {userRole === "superadmin" && (
+            <div className="mt-5">
+              <span
+                className={`mt-2 text-xl font-semibold ${!isOpen && "hidden"}`}
+              >
+                Admins
+              </span>
+              <NavLink to="/add-admin" className={linkClass}>
+                <div className="flex items-center">
+                  <FiUserPlus className="text-2xl" />
+                  {isOpen && <span className="ml-2">Add Admin</span>}
+                </div>
+              </NavLink>
+              <NavLink to="/view-admins" className={linkClass}>
+                <div className="flex items-center">
+                  <FiUserPlus className="text-2xl" />
+                  {isOpen && <span className="ml-2">View Admins</span>}
+                </div>
+              </NavLink>
+            </div>
+          )}
         </ul>
       </div>
       <div className="flex justify-center">

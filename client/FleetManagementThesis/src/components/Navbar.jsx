@@ -1,17 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FiAlignJustify } from "react-icons/fi";
 
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [displayName, setDisplayName] = useState(""); // State for user's display name
   const navigate = useNavigate();
+
+  // Fetch user details from localStorage
+  useEffect(() => {
+    const storedDisplayName = localStorage.getItem("displayName");
+    if (storedDisplayName) {
+      setDisplayName(storedDisplayName);
+    }
+  }, []);
 
   const handleLogout = async () => {
     try {
       const response = await axios.get(`http://localhost:7000/api/v1/logout`);
       console.log(response.data.message);
       localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      localStorage.removeItem("displayName");
       navigate("/");
     } catch (error) {
       console.log(error);
@@ -19,7 +30,14 @@ const Navbar = () => {
   };
 
   return (
-    <div className="bg-white shadow-md h-16 flex items-center justify-end px-4 md:px-6 lg:px-8">
+    <div className="bg-white shadow-md h-16 flex items-center justify-between px-4 md:px-6 lg:px-8">
+      {/* Welcome Message */}
+      <div>
+        <h1 className="text-lg md:text-xl font-semibold text-gray-700">
+          Welcome, {displayName || "Admin"}
+        </h1>
+      </div>
+
       {/* Dropdown Menu */}
       <div className="relative">
         <div

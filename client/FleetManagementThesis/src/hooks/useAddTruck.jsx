@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import axios from "axios";
 import baseURL from "@/config/config";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify"; // Import toast
 
 // Custom hook for adding trucks using API
 const useAddTruck = (endpoint, initialFormState, validate) => {
   const [isLoading, setIsLoading] = useState(false); // State for loading status
-  const [sucess, setSuccess] = useState(false); // State for form status
+  const [success, setSuccess] = useState(false); // State for form status
   const navigate = useNavigate(); // Hook to navigate to other routes
 
   // Form submission
@@ -17,19 +18,24 @@ const useAddTruck = (endpoint, initialFormState, validate) => {
     if (validate()) {
       setIsLoading(true);
       try {
-        // Performing POST request using baseURL and enpoint
+        // Performing POST request using baseURL and endpoint
         const response = await axios.post(`${baseURL}${endpoint}`, formData);
         console.log("Response:", response);
         if (response.status === 201) {
-          setSuccess(true); // Set the setSucess to true
-          alert("Truck Added successfully"); // Alert box for adding driver sucessfully
-          navigate("/view-trucks"); // Navigate to View Driver page
+          setSuccess(true); // Set success to true
+          toast.success("Truck added successfully!", { position: "top-right" }); // Success toast
+          navigate("/view-trucks"); // Navigate to View Trucks page
         }
       } catch (error) {
         // Catching submission error
         console.error("Error submitting form: ", error);
+
+        // Display error toast
+        toast.error(error.response?.data?.message || "Failed to add truck.", {
+          position: "top-right",
+        });
       } finally {
-        // Stop the laoding spinner
+        // Stop the loading spinner
         setIsLoading(false);
       }
     }
@@ -39,7 +45,7 @@ const useAddTruck = (endpoint, initialFormState, validate) => {
   return {
     handleSubmit, // Handle submission logic
     isLoading, // Boolean flag for loading form
-    sucess, // Boolean flag for form state
+    success, // Boolean flag for form state
   };
 };
 

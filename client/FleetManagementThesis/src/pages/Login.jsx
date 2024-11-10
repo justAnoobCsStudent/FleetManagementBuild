@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { app } from "@/Firebase";
-import { getAuth } from "firebase/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,27 +16,36 @@ const Login = () => {
     e.preventDefault();
 
     try {
+      // Send login request to the server
       const response = await axios.post(`http://localhost:7000/api/v1/login`, {
         email,
         password,
       });
 
-      const user = getAuth(app).currentUser;
-      const tokenId = user.accessToken;
-      localStorage.setItem("token", tokenId);
+      const { token, role } = response.data.data;
+
+      // Save token and role to localStorage
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", role);
+
       toast.success("Login successful!", { position: "top-right" });
-      navigate("/dashboard"); // Redirect to the dashboard
+
+      // Redirect user based on their role
+      if (role === "superadmin") {
+        navigate("/dashboard"); // Superadmin has access to the same dashboard
+      } else {
+        navigate("/dashboard"); // Admin is redirected to the same dashboard
+      }
     } catch (error) {
       if (error.response && error.response.data) {
-        // Display error message returned from the API
-        console.log(error.response.data.message);
+        // Display server-provided error message
         toast.error(
           error.response.data.message ||
             "Login failed! Please check your credentials.",
           { position: "top-right" }
         );
       } else {
-        console.log(error);
+        console.error("Login error:", error);
         toast.error("An unexpected error occurred.", { position: "top-right" });
       }
     }
