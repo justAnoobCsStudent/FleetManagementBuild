@@ -13,8 +13,8 @@ const validateDriverForm = (formData) => {
   }
 
   // Validation for middle initial
-  // Should be 1 character only
   if (!formData.middleInitial || formData.middleInitial.length !== 1) {
+    // Should be 1 character only
     errors.middleInitial = "Middle initial must be 1 character";
   }
 

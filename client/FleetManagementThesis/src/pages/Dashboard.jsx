@@ -5,79 +5,87 @@ import { ref, onValue } from "firebase/database";
 import { database } from "../Firebase";
 
 const Dashboard = () => {
-  const [markers, setMarkers] = useState([]); // State for storing GPS markers
-  const [fuelData, setFuelData] = useState({}); // State for storing fuel data
+  const [markers, setMarkers] = useState([]); // State for GPS markers
+  const [fuelData, setFuelData] = useState({}); // State for fuel data
+  const [truckIds, setTruckIds] = useState([]); // State for truck IDs
 
-  // Fetch GPS data from Firebase Realtime Database
+  // Fetch truck GPS data and update markers
   useEffect(() => {
-    const markersRef = ref(database, "gps_data/TRUCK01");
-    const fuelRef = ref(database, "fuel_data");
+    const markersRef = ref(database, "gps_data");
 
-    // Listen for changes in GPS data
     const unsubscribeGPS = onValue(markersRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        // Get the latest entry by finding the most recent key
-        const latestKey = Object.keys(data).pop();
-        const latestData = data[latestKey];
-        if (latestData.latitude && latestData.longitude) {
-          // Log the fetched latitude and longitude data
-          console.log("Fetched GPS Data:", latestData);
-          // Create marker data for the map
-          const markerData = {
-            id: "TRUCK01", // Unique ID for the marker
-            position: [latestData.latitude, latestData.longitude], // Latitude and longitude from Firebase
-            name: "Truck 01", // Name for the marker
-          };
-          // Update markers state
-          setMarkers([markerData]);
-          console.log("Markers set:", [markerData]); // Log the markers set
-        } else {
-          console.error("Invalid GPS data:", latestData); // Log if data is invalid
-        }
+        const dynamicTruckIds = Object.keys(data); // Extract truck IDs from GPS data
+
+        // Update truck IDs only if they have changed
+        setTruckIds((prevIds) => {
+          if (JSON.stringify(prevIds) !== JSON.stringify(dynamicTruckIds)) {
+            return dynamicTruckIds;
+          }
+          return prevIds;
+        });
+
+        // Create marker data for each truck
+        const newMarkers = dynamicTruckIds
+          .map((truckId) => {
+            const latestData = data[truckId];
+            const latestKey = Object.keys(latestData).pop();
+            const truckData = latestData[latestKey];
+
+            if (truckData.latitude && truckData.longitude) {
+              return {
+                id: truckId,
+                position: [truckData.latitude, truckData.longitude],
+                name: `Truck ${truckId}`,
+              };
+            }
+            return null;
+          })
+          .filter((marker) => marker !== null); // Remove invalid markers
+
+        setMarkers(newMarkers);
       } else {
-        console.error("No GPS data found for TRUCK01");
+        console.error("No GPS data found for any trucks");
       }
     });
 
-    // Listen for changes in fuel data
+    return unsubscribeGPS; // Clean-up for GPS listener
+  }, []); // Fetch GPS data only on mount
+
+  // Fetch truck fuel data and update fuelData
+  useEffect(() => {
+    const fuelRef = ref(database, "fuel_data");
+
     const unsubscribeFuel = onValue(fuelRef, (snapshot) => {
-      console.log("Fetched fuel data:", snapshot.val());
       const data = snapshot.val() || {};
       const newFuelData = {};
 
-      const trucks = ["TRUCK01", "TRUCK02", "TRUCK03"];
-      trucks.forEach((truck) => {
-        if (data[truck]) {
-          // Get the latest entry by finding the most recent key
-          const fuelEntries = data[truck];
+      truckIds.forEach((truckId) => {
+        if (data[truckId]) {
+          const fuelEntries = data[truckId];
           const latestEntry = fuelEntries && Object.keys(fuelEntries).pop();
-          newFuelData[truck] = {
+          newFuelData[truckId] = {
             fuel_percentage: latestEntry
               ? fuelEntries[latestEntry].fuel_percentage || 0
               : 0,
           };
         } else {
-          newFuelData[truck] = { fuel_percentage: 0 }; // Default value if no data
+          newFuelData[truckId] = { fuel_percentage: 0 };
         }
       });
-      // Update Fuel state
+
       setFuelData(newFuelData);
     });
 
-    // Clean-up function to unsubscribe from database listener
-    return () => {
-      unsubscribeGPS();
-      unsubscribeFuel();
-    };
-  }, []);
+    return unsubscribeFuel; // Clean-up for fuel listener
+  }, [truckIds]); // Re-run only when truckIds changes
 
-  // Return Dashboard
   return (
     <div className="h-full px-4 sm:px-6 lg:px-8">
       <h1 className="text-xl font-semibold mb-4">GPS Tracking</h1>
 
-      {/* Map Section with responsive height */}
+      {/* Map Section */}
       <div className="h-80 sm:h-96 lg:h-112 rounded-lg overflow-hidden mb-6">
         <Map markers={markers} />
       </div>
@@ -85,7 +93,7 @@ const Dashboard = () => {
       {/* Truck List Section */}
       <div className="w-full pb-4">
         <h2 className="text-xl font-semibold mb-4">Truck List</h2>
-        <TruckListCard fuelData={fuelData} /> {/* Pass fuelData directly */}
+        <TruckListCard fuelData={fuelData} />
       </div>
     </div>
   );

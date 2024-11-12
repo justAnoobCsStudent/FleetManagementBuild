@@ -13,17 +13,54 @@ const ViewTruck = () => {
   const [isLoading, setIsLoading] = useState(true); // Loading state
   const [error, setError] = useState(""); // Error state
   const [markers, setMarkers] = useState([]); // State for storing GPS markers
-  const [fuelData, setFuelData] = useState({}); // State for fuel data
+  const [fuelPercentage, setFuelPercentage] = useState(0); // State for fuel data
 
-  // Fetch truck data from API or server
   useEffect(() => {
     const fetchTruck = async () => {
       try {
         const response = await axios.get(
           `http://localhost:7000/api/v1/vehicles/${id}`
-        ); // API endpoint
-        setTruck(response.data.data);
+        ); // Fetch truck details
+        const fetchedTruck = response.data.data;
+        setTruck(fetchedTruck);
         setIsLoading(false);
+
+        // Set up Firebase references based on truck_id
+        const truckRef = ref(database, `gps_data/${fetchedTruck.truck_id}`);
+        const fuelRef = ref(database, `fuel_data/${fetchedTruck.truck_id}`);
+
+        // Listen for changes in GPS data
+        const unsubscribeGPS = onValue(truckRef, (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            const latestKey = Object.keys(data).pop();
+            const latestData = data[latestKey];
+            if (latestData.latitude && latestData.longitude) {
+              const markerData = {
+                id: fetchedTruck.truck_id,
+                position: [latestData.latitude, latestData.longitude],
+                name: `Truck ${fetchedTruck.truck_id}`,
+              };
+              setMarkers([markerData]);
+            }
+          }
+        });
+
+        // Listen for changes in fuel data
+        const unsubscribeFuel = onValue(fuelRef, (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            const latestKey = Object.keys(data).pop();
+            const latestData = data[latestKey];
+            setFuelPercentage(latestData?.fuel_percentage || 0);
+          }
+        });
+
+        // Cleanup function to unsubscribe from Firebase listeners
+        return () => {
+          unsubscribeGPS(); // Unsubscribe from GPS data listener
+          unsubscribeFuel(); // Unsubscribe from fuel data listener
+        };
       } catch (error) {
         setError("Error fetching truck data.");
         setIsLoading(false);
@@ -31,53 +68,6 @@ const ViewTruck = () => {
     };
 
     fetchTruck();
-
-    const markersRef = ref(database, "gps_data/TRUCK01");
-    const fuelRef = ref(database, "fuel_data");
-
-    // Listen for changes in GPS data
-    const unsubscribeGPS = onValue(markersRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const latestKey = Object.keys(data).pop();
-        const latestData = data[latestKey];
-        if (latestData.latitude && latestData.longitude) {
-          const markerData = {
-            id: "TRUCK01",
-            position: [latestData.latitude, latestData.longitude],
-            name: "Truck 01",
-          };
-          setMarkers([markerData]);
-        }
-      }
-    });
-
-    // Listen for changes in fuel data
-    const unsubscribeFuel = onValue(fuelRef, (snapshot) => {
-      const data = snapshot.val() || {};
-      const newFuelData = {};
-
-      const trucks = ["TRUCK01", "TRUCK02", "TRUCK03"];
-      trucks.forEach((truck) => {
-        if (data[truck]) {
-          const fuelEntries = data[truck];
-          const latestEntry = fuelEntries && Object.keys(fuelEntries).pop();
-          newFuelData[truck] = {
-            fuel_percentage: latestEntry
-              ? fuelEntries[latestEntry].fuel_percentage || 0
-              : 0,
-          };
-        } else {
-          newFuelData[truck] = { fuel_percentage: 0 };
-        }
-      });
-      setFuelData(newFuelData);
-    });
-
-    return () => {
-      unsubscribeGPS();
-      unsubscribeFuel();
-    };
   }, [id]);
 
   if (isLoading) {
@@ -101,7 +91,7 @@ const ViewTruck = () => {
       <Card className="bg-white shadow-lg">
         <CardHeader>
           <h3 className="text-lg font-semibold">Truck Information</h3>
-          <hr className="w-auro" />
+          <hr className="w-auto" />
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
@@ -112,10 +102,10 @@ const ViewTruck = () => {
               <strong>Unit:</strong> {truck.unit}
             </p>
             <p>
-              <strong>Driver:</strong>
-              {truck.driver.name
-                ? ` ${truck.driver.name.lastName}, ${truck.driver.name.firstName}`
-                : " No Driver Assigned"}
+              <strong>Driver:</strong>{" "}
+              {truck.driver?.name
+                ? `${truck.driver.name.lastName}, ${truck.driver.name.firstName}`
+                : "No Driver Assigned"}
             </p>
             <p>
               <strong>Plate Number:</strong> {truck.plateNumber}
@@ -126,10 +116,20 @@ const ViewTruck = () => {
             <p>
               <strong>Transmission:</strong> {truck.transmission}
             </p>
-            <p>
-              <strong>Fuel Percentage:</strong>{" "}
-              {fuelData["TRUCK01"]?.fuel_percentage || 0}%
-            </p>
+            {/* Fuel Capacity */}
+            <div className="mt-2">
+              <p className="text-md font-medium text-gray-600 mb-2">
+                Fuel Capacity: {fuelPercentage}%
+              </p>
+              <div className="w-full bg-gray-200 h-2 rounded-lg mt-1">
+                <div
+                  className="bg-green-500 h-full rounded-lg"
+                  style={{
+                    width: `${fuelPercentage}%`,
+                  }}
+                ></div>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
