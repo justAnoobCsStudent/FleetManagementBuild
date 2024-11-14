@@ -37,6 +37,7 @@ const router = createBrowserRouter(
         element={
           <MainLayout>
             <AuthListener />
+            <AlarmListener /> {/* Added AlarmListener here */}
           </MainLayout>
         }
       >
@@ -46,7 +47,6 @@ const router = createBrowserRouter(
           element={
             <IsLoggedIn>
               <Dashboard />
-              <AlarmListener />
             </IsLoggedIn>
           }
         />
@@ -55,7 +55,6 @@ const router = createBrowserRouter(
           element={
             <IsLoggedIn>
               <AddDriver />
-              <AlarmListener />
             </IsLoggedIn>
           }
         />
@@ -64,7 +63,6 @@ const router = createBrowserRouter(
           element={
             <IsLoggedIn>
               <AddTruck />
-              <AlarmListener />
             </IsLoggedIn>
           }
         />
@@ -90,7 +88,6 @@ const router = createBrowserRouter(
           element={
             <IsLoggedIn>
               <ViewDrivers />
-              <AlarmListener />
             </IsLoggedIn>
           }
         />
@@ -99,7 +96,6 @@ const router = createBrowserRouter(
           element={
             <IsLoggedIn>
               <ViewTrucks />
-              <AlarmListener />
             </IsLoggedIn>
           }
         />
@@ -108,7 +104,6 @@ const router = createBrowserRouter(
           element={
             <IsLoggedIn>
               <ViewReports />
-              <AlarmListener />
             </IsLoggedIn>
           }
         />
@@ -117,7 +112,6 @@ const router = createBrowserRouter(
           element={
             <IsLoggedIn>
               <ViewTruck />
-              <AlarmListener />
             </IsLoggedIn>
           }
         />
@@ -126,7 +120,6 @@ const router = createBrowserRouter(
           element={
             <IsLoggedIn>
               <ViewDriver />
-              <AlarmListener />
             </IsLoggedIn>
           }
         />
@@ -135,7 +128,6 @@ const router = createBrowserRouter(
           element={
             <IsLoggedIn>
               <EditTruck />
-              <AlarmListener />
             </IsLoggedIn>
           }
         />

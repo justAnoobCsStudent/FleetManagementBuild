@@ -38,11 +38,12 @@ const AdjustMapView = ({ markers }) => {
 
 const Map = ({ markers }) => {
   return (
-    <div className="h-full">
+    <div className="relative h-full w-full" style={{ zIndex: 0 }}>
       <MapContainer
         center={[0, 0]} // Center is dynamically adjusted using AdjustMapView
         zoom={13} // Default zoom level
-        style={{ height: "100%", width: "100%" }}
+        className="h-full w-full"
+        style={{ zIndex: 0 }}
       >
         {/* Default TileLayer for Leaflet */}
         <TileLayer

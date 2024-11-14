@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { ref, onValue } from "firebase/database"; // Import off for removing listeners
-import { database, firestore } from "../Firebase"; // Adjust the path to your Firebase setup
-import { collection, addDoc, Timestamp } from "firebase/firestore"; // Firestore imports
-import io from "socket.io-client"; // Import WebSocket client
-import { toast } from "react-toastify"; // Import toast
+import { ref, onValue } from "firebase/database";
+import { database, firestore } from "../Firebase";
+import {
+  collection,
+  addDoc,
+  Timestamp,
+  updateDoc,
+  doc,
+} from "firebase/firestore"; // Added updateDoc for isRead
+import io from "socket.io-client";
+import { toast } from "react-toastify";
 
 const SOCKET_SERVER_URL = "http://localhost:7000"; // Your WebSocket backend URL
 const COOLDOWN_PERIOD = 10000; // 10 seconds in milliseconds
@@ -55,14 +61,18 @@ const AlarmListener = () => {
                 [truckId]: currentTime,
               }));
 
-              // Store the alarm event in Firestore
+              // Store the alarm event in Firestore with isRead set to false initially
               try {
-                await addDoc(collection(firestore, "alarms"), {
+                const docRef = await addDoc(collection(firestore, "alarms"), {
                   truckId,
                   timestamp: Timestamp.fromDate(new Date(currentTime)),
-                  message: `Fuel theft detected for ${truckId}!`,
+                  message: `Fuel abnormalities detected in ${truckId}!`,
+                  type: `Fuel Theft`,
+                  isRead: false, // New isRead property
                 });
-                console.log("Alarm data added to Firestore");
+                console.log(
+                  `Alarm data added to Firestore with ID: ${docRef.id}`
+                );
               } catch (error) {
                 console.error("Error adding alarm data to Firestore:", error);
               }
