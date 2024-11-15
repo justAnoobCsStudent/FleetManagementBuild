@@ -1,93 +1,93 @@
 import React, { useEffect, useState } from "react";
-import { ref, onValue } from "firebase/database";
+import { query, limitToLast, ref, onValue } from "firebase/database";
 import { database, firestore } from "../Firebase";
 import {
   collection,
   addDoc,
   Timestamp,
-  updateDoc,
-  doc,
-} from "firebase/firestore"; // Added updateDoc for isRead
+  getDocs,
+  where,
+  query as firestoreQuery,
+} from "firebase/firestore";
 import io from "socket.io-client";
-import { toast } from "react-toastify";
 
 const SOCKET_SERVER_URL = "http://localhost:7000"; // Your WebSocket backend URL
 const COOLDOWN_PERIOD = 10000; // 10 seconds in milliseconds
 
 const AlarmListener = () => {
-  const [lastNotificationTime, setLastNotificationTime] = useState({}); // Store the last notification time for each truck
+  const [lastProcessedTime, setLastProcessedTime] = useState({}); // Track the last processed time for each truck
 
   useEffect(() => {
     const socket = io(SOCKET_SERVER_URL); // Establish WebSocket connection
 
     const truckIds = ["TRUCK01", "TRUCK02", "TRUCK03"]; // List of truck IDs, replace with your actual IDs
 
-    // Function to handle alarm updates for each truck
     const handleAlarmUpdate = (truckId) => {
-      const fuelDataRef = ref(database, `fuel_data/${truckId}`); // Reference for the truck's fuel data
+      // Create a query to get only the latest data for the truck
+      const fuelDataRef = query(
+        ref(database, `fuel_data/${truckId}`),
+        limitToLast(1) // Retrieve only the latest entry
+      );
 
-      // Listen to the truck's fuel data changes
-      const unsubscribeAlarm = onValue(fuelDataRef, (snapshot) => {
+      const unsubscribeAlarm = onValue(fuelDataRef, async (snapshot) => {
         const fuelData = snapshot.val();
 
-        // Check if fuelData exists and loop through all records for the truck
         if (fuelData) {
-          Object.values(fuelData).forEach(async (entry) => {
+          // Since we use `limitToLast(1)`, the data will only have one entry
+          Object.entries(fuelData).forEach(async ([key, entry]) => {
             const currentTime = Date.now();
-            const lastTime = lastNotificationTime[truckId] || 0;
+            const uniqueEntryId = `${truckId}-${key}`; // Create a unique identifier for each entry
+            const lastTime = lastProcessedTime[truckId]?.[key] || 0;
 
-            // Check if the alarm is triggered for the current data entry and cooldown has expired
+            // Check if the alarm property `isAlarm` is true and it's not within the cooldown period
             if (
               entry.isAlarm === true &&
-              currentTime - lastTime > COOLDOWN_PERIOD
+              (!lastProcessedTime[truckId]?.[key] ||
+                currentTime - lastTime > COOLDOWN_PERIOD)
             ) {
-              console.log(`Alarm triggered for ${truckId}!`);
+              console.log(`Alarm triggered for ${truckId}, entry ${key}!`);
 
-              // Show toast notification for the current truck's alarm
-              toast.error(`Fuel theft detected for ${truckId}!`, {
-                toastId: truckId, // Unique toast ID for each truck
-                position: "bottom-right",
-                autoClose: 5000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                theme: "colored",
-              });
+              // Query Firestore to check if the document is already written
+              const alarmsQuery = firestoreQuery(
+                collection(firestore, "alarms"),
+                where("truckId", "==", truckId),
+                where("entryId", "==", key) // Use `key` as the entry identifier
+              );
+              const querySnapshot = await getDocs(alarmsQuery);
 
-              // Update the last notification time for the truck
-              setLastNotificationTime((prevTimes) => ({
-                ...prevTimes,
-                [truckId]: currentTime,
-              }));
+              if (querySnapshot.empty) {
+                // If the document does not exist in the alarms collection, write it
+                try {
+                  const docRef = await addDoc(collection(firestore, "alarms"), {
+                    truckId,
+                    entryId: key, // Include entry ID for uniqueness
+                    timestamp: Timestamp.fromDate(new Date(currentTime)),
+                    message: `Fuel abnormalities detected in ${truckId}!`,
+                    type: `Fuel Theft`,
+                    isRead: false, // New isRead property
+                  });
+                  console.log(
+                    `Alarm data added to Firestore with ID: ${docRef.id}`
+                  );
 
-              // Store the alarm event in Firestore with isRead set to false initially
-              try {
-                const docRef = await addDoc(collection(firestore, "alarms"), {
-                  truckId,
-                  timestamp: Timestamp.fromDate(new Date(currentTime)),
-                  message: `Fuel abnormalities detected in ${truckId}!`,
-                  type: `Fuel Theft`,
-                  isRead: false, // New isRead property
-                });
+                  // Update the last processed time for this specific entry
+                  setLastProcessedTime((prevTimes) => ({
+                    ...prevTimes,
+                    [truckId]: { ...prevTimes[truckId], [key]: currentTime },
+                  }));
+                } catch (error) {
+                  console.error("Error adding alarm data to Firestore:", error);
+                }
+              } else {
                 console.log(
-                  `Alarm data added to Firestore with ID: ${docRef.id}`
+                  `Alarm for ${truckId}, entry ${key} already exists.`
                 );
-              } catch (error) {
-                console.error("Error adding alarm data to Firestore:", error);
               }
-            } else if (entry.isAlarm === false) {
-              // Reset the last notification time when the alarm is turned off
-              setLastNotificationTime((prevTimes) => ({
-                ...prevTimes,
-                [truckId]: 0,
-              }));
             }
           });
         }
       });
 
-      // Return the unsubscribe function for this specific truck
       return unsubscribeAlarm;
     };
 
@@ -101,29 +101,7 @@ const AlarmListener = () => {
       unsubscribeListeners.forEach((unsubscribe) => unsubscribe()); // Call each unsubscribe function
       socket.disconnect(); // Clean up WebSocket connection
     };
-  }, []); // Run effect only once on mount
-
-  // Listen for alert messages from the server
-  useEffect(() => {
-    const socket = io(SOCKET_SERVER_URL); // Reuse the same socket connection
-    socket.on("alert", (message) => {
-      console.log("Alert received from server:", message);
-      // Show toast notification for server alerts
-      toast.error(message, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "colored",
-      });
-    });
-
-    return () => {
-      socket.disconnect(); // Clean up WebSocket connection
-    };
-  }, []); // Run effect only once on mount
+  }, [lastProcessedTime]); // Dependencies to track state changes
 
   return null; // This component doesn't render anything visible
 };

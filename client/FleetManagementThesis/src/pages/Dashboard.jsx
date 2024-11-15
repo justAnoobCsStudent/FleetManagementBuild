@@ -37,7 +37,7 @@ const Dashboard = () => {
               return {
                 id: truckId,
                 position: [truckData.latitude, truckData.longitude],
-                name: `Truck ${truckId}`,
+                name: `${truckId}`,
               };
             }
             return null;

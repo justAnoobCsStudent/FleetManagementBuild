@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { FiAlignJustify } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FiAlignJustify } from "react-icons/fi";
-import { BellIcon, CheckCircleIcon, XCircleIcon } from "@heroicons/react/solid";
+import {
+  BellIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  XIcon,
+} from "@heroicons/react/solid";
 import {
   collection,
   query,
@@ -12,7 +17,7 @@ import {
   doc,
 } from "firebase/firestore";
 import { firestore } from "../Firebase";
-import Modal from "@/components/Modal"; // Assuming you have a reusable Modal component
+import Modal from "@/components/Modal";
 import {
   Tooltip,
   TooltipContent,
@@ -21,8 +26,7 @@ import {
 } from "@/components/ui/tooltip";
 
 const Navbar = () => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null); // Track active dropdown
   const [displayName, setDisplayName] = useState(""); // User's display name
   const [alarms, setAlarms] = useState([]); // Store alarms
   const [unreadCount, setUnreadCount] = useState(0); // Count of unread alarms
@@ -119,7 +123,11 @@ const Navbar = () => {
         {/* Notification Bell */}
         <div className="relative">
           <button
-            onClick={() => setIsNotificationOpen((prev) => !prev)}
+            onClick={() =>
+              setActiveDropdown((prev) =>
+                prev === "notifications" ? null : "notifications"
+              )
+            }
             className="relative focus:outline-none"
           >
             <BellIcon className="h-6 w-6 text-gray-600" />
@@ -131,22 +139,12 @@ const Navbar = () => {
           </button>
 
           {/* Notification Dropdown */}
-          {isNotificationOpen && (
+          {activeDropdown === "notifications" && (
             <div
-              className="absolute right-0 mt-2 w-96 bg-white shadow-lg rounded-lg z-50 border border-gray-300"
-              style={{ maxHeight: "300px", overflowY: "auto" }}
+              className="absolute right-0 mt-2 w-96 bg-white shadow-lg rounded-lg z-50 border border-gray-300 p-4 flex flex-col"
+              style={{ maxHeight: "350px" }}
             >
-              <div className="p-4 border-b flex justify-between items-center sticky top-0 bg-white z-10">
-                <h2 className="text-lg font-semibold">Notifications</h2>
-                <button
-                  onClick={markAllAsRead}
-                  className="text-sm flex items-center hover:text-blue-800 group"
-                >
-                  <CheckCircleIcon className="h-4 w-4 mr-1 group-hover:text-green-500" />
-                  Mark all read
-                </button>
-              </div>
-              <ul>
+              <ul className="overflow-y-auto flex-grow mb-4">
                 {alarms.length > 0 ? (
                   alarms.map((alarm) => (
                     <li
@@ -202,20 +200,29 @@ const Navbar = () => {
                   </li>
                 )}
               </ul>
+              <button
+                onClick={markAllAsRead}
+                className="sticky bottom-0 bg-white w-full text-sm flex items-center justify-center hover:text-blue-800 group"
+              >
+                <CheckCircleIcon className="h-4 w-4 mr-1 group-hover:text-green-500" />
+                Mark all read
+              </button>
             </div>
           )}
         </div>
 
         {/* Dropdown Menu */}
         <div className="relative">
-          <div
+          <button
+            onClick={() =>
+              setActiveDropdown((prev) => (prev === "menu" ? null : "menu"))
+            }
             className="flex items-center cursor-pointer"
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           >
             <FiAlignJustify className="text-2xl text-gray-500 hover:text-gray-600" />
-          </div>
+          </button>
 
-          {isDropdownOpen && (
+          {activeDropdown === "menu" && (
             <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
               <ul className="py-1">
                 <li>
@@ -235,7 +242,13 @@ const Navbar = () => {
       {/* Alarm Details Modal */}
       {selectedAlarm && (
         <Modal onClose={() => setSelectedAlarm(null)}>
-          <h2 className="text-xl font-bold mb-4">Alarm Details</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">Alarm Details</h2>
+            <XIcon
+              className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700"
+              onClick={() => setSelectedAlarm(null)}
+            />
+          </div>
           <p>
             <strong>Message:</strong> {selectedAlarm.message}
           </p>
@@ -243,7 +256,7 @@ const Navbar = () => {
             <strong>Type:</strong> {selectedAlarm.type}
           </p>
           <p>
-            <strong>Timestamp:</strong>
+            <strong>Timestamp:</strong>{" "}
             {new Date(selectedAlarm.timestamp.toDate()).toLocaleString()}
           </p>
         </Modal>

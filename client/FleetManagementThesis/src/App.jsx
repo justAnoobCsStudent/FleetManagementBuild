@@ -22,7 +22,8 @@ import Login from "./pages/Login.jsx";
 import IsLoggedIn from "./components/IsLoggedIn.jsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import AlarmListener from "./components/AlarmListener.jsx";
+import GeoFenceListener from "./components/GeoFenceListener.jsx"; // Always active listener
+import AlarmListener from "./components/AlarmListener.jsx"; // Always active listener
 import AuthListener from "./components/AuthListener.jsx";
 import ViewAdmins from "./pages/View-Admins.jsx";
 import EditAdmin from "./pages/Edit-Admin.jsx";
@@ -37,7 +38,6 @@ const router = createBrowserRouter(
         element={
           <MainLayout>
             <AuthListener />
-            <AlarmListener /> {/* Added AlarmListener here */}
           </MainLayout>
         }
       >
@@ -82,7 +82,6 @@ const router = createBrowserRouter(
             </IsLoggedIn>
           }
         />
-
         <Route
           path="/view-drivers"
           element={
@@ -151,8 +150,20 @@ const router = createBrowserRouter(
 const App = () => {
   return (
     <>
+      <GeoFenceListener /> {/* Always active listener for geofence events */}
+      <AlarmListener /> {/* Always active listener for alarms */}
       <RouterProvider router={router} />
-      <ToastContainer />
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </>
   );
 };
