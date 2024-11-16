@@ -1,25 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import L from "leaflet";
 import { Polygon } from "react-leaflet";
-import axios from "axios";
-import { firestore } from "../Firebase";
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  setDoc,
-  doc,
-} from "firebase/firestore";
 import { eventEmitter } from "../utils/eventEmitter";
 
 const GeoFence = ({ truckPosition, truckName }) => {
-  const [truckStates, setTruckStates] = useState({}); // Track states for each truck
-  const [vehicleDocIds, setVehicleDocIds] = useState({}); // Track document IDs for each truck
-
-  const reportsRef = collection(firestore, "reports");
-
-  // Define the main and sub-geofence coordinates
   const mainGeofence = {
     name: "Main Geofence",
     coordinates: [
@@ -51,33 +35,8 @@ const GeoFence = ({ truckPosition, truckName }) => {
     fillOpacity: 0.4,
   };
 
-  // Fetch the document ID of the truck from the vehicles collection
   useEffect(() => {
-    const fetchVehicleDocId = async () => {
-      try {
-        const vehiclesRef = collection(firestore, "vehicles");
-        const q = query(vehiclesRef, where("truck_id", "==", truckName));
-        const querySnapshot = await getDocs(q);
-
-        if (!querySnapshot.empty) {
-          const docId = querySnapshot.docs[0].id;
-          setVehicleDocIds((prev) => ({ ...prev, [truckName]: docId }));
-          console.log(`Found document ID for truck "${truckName}": ${docId}`);
-        } else {
-          console.warn(`Truck "${truckName}" not found in vehicles collection`);
-        }
-      } catch (error) {
-        console.error("Error fetching vehicle document ID:", error.message);
-      }
-    };
-
-    if (truckName && !vehicleDocIds[truckName]) {
-      fetchVehicleDocId();
-    }
-  }, [truckName, vehicleDocIds]);
-
-  useEffect(() => {
-    if (truckPosition && vehicleDocIds[truckName]) {
+    if (truckPosition) {
       const mainGeoFencePoly = L.polygon(mainGeofence.coordinates);
       const subGeoFencePoly = L.polygon(subGeofence.coordinates);
       const truckCoordinates = L.latLng(truckPosition[0], truckPosition[1]);
@@ -89,87 +48,29 @@ const GeoFence = ({ truckPosition, truckName }) => {
         .getBounds()
         .contains(truckCoordinates);
 
-      const checkAndEmit = async (truckName, isInsideSub) => {
-        try {
-          const reportQuery = query(
-            reportsRef,
-            where("truckName", "==", truckName)
-          );
-          const querySnapshot = await getDocs(reportQuery);
-
-          if (!querySnapshot.empty) {
-            const reportDoc = querySnapshot.docs[0];
-            const reportData = reportDoc.data();
-
-            if (isInsideSub && !reportData.isInsideSub) {
-              eventEmitter.emit("geofence:entry", {
-                truckName,
-                geofenceName: subGeofence.name,
-              });
-              await setDoc(doc(firestore, "reports", reportDoc.id), {
-                ...reportData,
-                isInsideSub: true,
-              });
-            } else if (!isInsideSub && reportData.isInsideSub) {
-              eventEmitter.emit("geofence:exit", {
-                truckName,
-                geofenceName: subGeofence.name,
-              });
-              await setDoc(doc(firestore, "reports", reportDoc.id), {
-                ...reportData,
-                isInsideSub: false,
-              });
-            }
-          } else {
-            // If no report exists, create a new document
-            await setDoc(doc(firestore, "reports", `${truckName}_report`), {
-              truckName,
-              isInsideSub,
-            });
-          }
-        } catch (error) {
-          console.error("Error checking and emitting geofence events:", error);
-        }
-      };
-
-      // Check and emit for sub-geofence
-      checkAndEmit(truckName, isInsideSub);
-
-      // Main geofence logic: Emit alarm only when outside
-      if (!isInsideMain) {
-        eventEmitter.emit("geofence:outside", { truckName });
-      }
-    }
-  }, [truckPosition, truckName, vehicleDocIds]);
-
-  // Function to update the vehicle's isActive status
-  const updateVehicleStatus = async (docId, isActiveStatus) => {
-    try {
-      await axios.put(`http://localhost:7000/api/v1/vehicles/${docId}`, {
-        isActive: isActiveStatus,
+      // Emit status with geofence name
+      eventEmitter.emit("geofence:status", {
+        truckName,
+        isInsideSub,
+        isInsideMain,
+        geofenceName: isInsideSub
+          ? subGeofence.name
+          : isInsideMain
+          ? mainGeofence.name
+          : "Outside All Geofences",
       });
-      console.log(
-        `Truck "${truckName}" status updated to: ${
-          isActiveStatus ? "Active" : "Inactive"
-        }`
-      );
-    } catch (error) {
-      console.error("Error updating truck status:", error);
     }
-  };
+  }, [truckPosition, truckName]);
 
   return (
     <>
-      {/* Main Geofence */}
       <Polygon
         positions={mainGeofence.coordinates}
         color={mainGeofence.color}
         fillColor={mainGeofence.color}
         fillOpacity={mainGeofence.fillOpacity}
-        opacity={mainGeofence.outlineOpacity} // Set outline opacity
+        opacity={mainGeofence.outlineOpacity}
       />
-
-      {/* Sub Geofence */}
       <Polygon
         positions={subGeofence.coordinates}
         color={subGeofence.color}

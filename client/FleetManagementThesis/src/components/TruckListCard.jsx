@@ -13,8 +13,12 @@ const TruckListCard = ({ fuelData = {} }) => {
 
   console.log("Fuel Data in TruckListCard:", fuelData);
 
-  // Filter active trucks
-  const activeTrucks = trucks.filter((truck) => truck.isActive);
+  // Function to determine fuel bar color based on percentage
+  const getFuelBarColor = (fuelPercentage) => {
+    if (fuelPercentage < 33) return "bg-red-500"; // Low fuel level
+    if (fuelPercentage < 66) return "bg-yellow-500"; // Medium fuel level
+    return "bg-green-500"; // High fuel level
+  };
 
   return (
     <div className="bg-white shadow-md rounded-lg p-6 w-full">
@@ -22,9 +26,9 @@ const TruckListCard = ({ fuelData = {} }) => {
         <Spinner loading={isLoading} />
       ) : error ? (
         <p className="text-red-700">Error fetching data: {error.message}</p>
-      ) : activeTrucks.length > 0 ? (
+      ) : trucks.length > 0 ? (
         <div className="space-y-4">
-          {activeTrucks.map((truck) => (
+          {trucks.map((truck) => (
             <div
               key={truck.truck_id}
               className="border-b border-gray-200 pb-4 flex justify-between items-center"
@@ -52,7 +56,9 @@ const TruckListCard = ({ fuelData = {} }) => {
                   </p>
                   <div className="w-full bg-gray-200 h-2 rounded-lg mt-1">
                     <div
-                      className="bg-green-500 h-full rounded-lg"
+                      className={`h-full rounded-lg ${getFuelBarColor(
+                        fuelData[truck.truck_id]?.fuel_percentage || 0
+                      )}`}
                       style={{
                         width: `${
                           fuelData[truck.truck_id]?.fuel_percentage || 0
@@ -71,8 +77,8 @@ const TruckListCard = ({ fuelData = {} }) => {
           ))}
         </div>
       ) : (
-        // Display if there are no active trucks
-        <p className="text-gray-600">No active trucks available.</p>
+        // Display if there are no trucks
+        <p className="text-gray-600">No trucks available.</p>
       )}
     </div>
   );

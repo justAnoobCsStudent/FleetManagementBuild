@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify"; // Import toast for notifications
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -66,8 +67,10 @@ const ViewDriver = () => {
       await axios.put(`http://localhost:7000/api/v1/drivers/${id}`, formData); // Update API call
       setDriver({ ...driver, ...formData });
       setIsEditing(false); // Switch back to view mode after saving
+      toast.success("Driver updated successfully!"); // Success toast
     } catch (error) {
       setError("Error updating driver data.");
+      toast.error("Failed to update driver. Please try again."); // Error toast
     }
   };
 
@@ -88,7 +91,7 @@ const ViewDriver = () => {
           {!isEditing && (
             <Button
               onClick={handleEditClick}
-              className="bg-blue-500 hover:bg-blue-600 text-white"
+              className="bg-gray-500 hover:bg-gray-600 text-white"
             >
               Edit Driver
             </Button>

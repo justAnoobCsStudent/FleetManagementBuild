@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Modal from "@/components/Modal";
 import axios from "axios";
+import { toast } from "react-toastify"; // Import toast for notifications
 
 const ViewDrivers = () => {
   const [drivers, setDrivers] = useState([]);
@@ -49,8 +50,12 @@ const ViewDrivers = () => {
       setDrivers((prevDrivers) =>
         prevDrivers.filter((driver) => driver.id !== selectedDriver.id)
       );
+      toast.success(
+        `Driver ${selectedDriver.name.firstName} ${selectedDriver.name.lastName} deleted successfully!`
+      ); // Success toast
     } catch (error) {
       console.error("Error deleting driver:", error);
+      toast.error("Failed to delete driver. Please try again."); // Error toast
     }
   };
 
@@ -95,18 +100,20 @@ const ViewDrivers = () => {
                     <td className="py-2 px-4 border-b">{driver.age}</td>
                     <td className="py-2 px-4 border-b">{driver.phoneNumber}</td>
                     <td className="py-2 px-4 border-b">{driver.gender}</td>
-                    <td className="py-2 px-4 border-b flex flex-col space-y-1">
-                      <Link to={`/view-driver/${driver.id}`}>
-                        <Button className="bg-gray-500 hover:bg-gray-600 text-white">
-                          View
+                    <td className="py-2 px-4 border-b">
+                      <div className="flex flex-col space-y-2">
+                        <Link to={`/view-driver/${driver.id}`}>
+                          <Button className="bg-gray-500 hover:bg-gray-600 text-white w-full">
+                            View
+                          </Button>
+                        </Link>
+                        <Button
+                          className="bg-red-500 hover:bg-red-600 text-white w-full"
+                          onClick={() => handleOpenDeleteModal(driver)}
+                        >
+                          Delete
                         </Button>
-                      </Link>
-                      <Button
-                        className="bg-red-500 hover:bg-red-600 text-white"
-                        onClick={() => handleOpenDeleteModal(driver)}
-                      >
-                        Delete
-                      </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -144,12 +151,12 @@ const ViewDrivers = () => {
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Link to={`/view-driver/${driver.id}`}>
-                    <Button className="bg-gray-500 hover:bg-gray-600 text-white">
+                    <Button className="bg-gray-500 hover:bg-gray-600 text-white w-full">
                       View
                     </Button>
                   </Link>
                   <Button
-                    className="bg-red-500 hover:bg-red-600 text-white"
+                    className="bg-red-500 hover:bg-red-600 text-white w-full"
                     onClick={() => handleOpenDeleteModal(driver)}
                   >
                     Delete

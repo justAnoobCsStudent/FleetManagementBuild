@@ -14,6 +14,7 @@ const ViewTruck = () => {
   const [error, setError] = useState(""); // Error state
   const [markers, setMarkers] = useState([]); // State for storing GPS markers
   const [fuelPercentage, setFuelPercentage] = useState(0); // State for fuel data
+  const [mapCenter, setMapCenter] = useState([0, 0]); // State for map center
 
   useEffect(() => {
     const fetchTruck = async () => {
@@ -42,6 +43,7 @@ const ViewTruck = () => {
                 name: `Truck ${fetchedTruck.truck_id}`,
               };
               setMarkers([markerData]);
+              setMapCenter([latestData.latitude, latestData.longitude]); // Update map center
             }
           }
         });
@@ -70,6 +72,13 @@ const ViewTruck = () => {
     fetchTruck();
   }, [id]);
 
+  // Determine the fuel bar color based on fuel percentage
+  const getFuelBarColor = () => {
+    if (fuelPercentage < 33) return "bg-red-500"; // Low fuel
+    if (fuelPercentage < 66) return "bg-yellow-500"; // Medium fuel
+    return "bg-green-500"; // High fuel
+  };
+
   if (isLoading) {
     return <Spinner loading={isLoading} />;
   }
@@ -85,7 +94,11 @@ const ViewTruck = () => {
 
       {/* Map Section with responsive height */}
       <div className="h-80 sm:h-96 lg:h-112 rounded-lg overflow-hidden mb-6">
-        <Map markers={markers} />
+        <Map
+          markers={markers}
+          center={mapCenter} // Center the map on the truck's position
+          zoom={18} // Maximum zoom level
+        />
       </div>
 
       <Card className="bg-white shadow-lg">
@@ -123,7 +136,7 @@ const ViewTruck = () => {
               </p>
               <div className="w-full bg-gray-200 h-2 rounded-lg mt-1">
                 <div
-                  className="bg-green-500 h-full rounded-lg"
+                  className={`h-full rounded-lg ${getFuelBarColor()}`}
                   style={{
                     width: `${fuelPercentage}%`,
                   }}

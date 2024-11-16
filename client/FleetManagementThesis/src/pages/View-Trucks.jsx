@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Modal from "@/components/modal";
 import Spinner from "@/components/Spinner";
+import { toast } from "react-toastify"; // Import toast
 
 const ViewTrucks = () => {
   const [trucks, setTrucks] = useState([]);
@@ -62,8 +63,10 @@ const ViewTrucks = () => {
             : truck
         )
       );
+      toast.success("Driver assigned successfully!");
     } catch (error) {
       console.error("Error assigning driver:", error);
+      toast.error("Failed to assign driver.");
     }
   };
 
@@ -78,8 +81,10 @@ const ViewTrucks = () => {
           truck.id === selectedTruck.id ? { ...truck, driver: null } : truck
         )
       );
+      toast.success("Driver unassigned successfully!");
     } catch (error) {
       console.error("Error deleting driver:", error);
+      toast.error("Failed to unassign driver.");
     }
   };
 
@@ -92,8 +97,10 @@ const ViewTrucks = () => {
       setTrucks((prevTrucks) =>
         prevTrucks.filter((truck) => truck.id !== selectedTruck.id)
       );
+      toast.success("Truck deleted successfully!");
     } catch (error) {
       console.error("Error deleting truck:", error);
+      toast.error("Failed to delete truck.");
     }
   };
 
@@ -150,7 +157,7 @@ const ViewTrucks = () => {
                       )}
                       <Button
                         onClick={() => navigate(`/edit-truck/${truck.id}`)}
-                        className="bg-blue-500 hover:bg-blue-600 text-white"
+                        className="bg-gray-500 hover:bg-gray-600 text-white"
                       >
                         Edit Truck
                       </Button>
@@ -174,86 +181,21 @@ const ViewTrucks = () => {
               </tbody>
             </table>
           </div>
-
-          {/* Card layout for smaller screens */}
-          <div className="md:hidden space-y-4">
-            {trucks.map((truck) => (
-              <div
-                key={truck.id}
-                className="bg-white border rounded-lg shadow p-4"
-              >
-                <p>
-                  <strong>Truck ID:</strong> {truck.truck_id}
-                </p>
-                <p>
-                  <strong>Driver:</strong>{" "}
-                  {truck.driver?.name
-                    ? `${truck.driver.name.lastName}, ${truck.driver.name.firstName}`
-                    : "No Driver Assigned"}
-                </p>
-                <p>
-                  <strong>Unit:</strong> {truck.unit}
-                </p>
-                <p>
-                  <strong>Plate Number:</strong> {truck.plateNumber}
-                </p>
-                <p>
-                  <strong>Color:</strong> {truck.color}
-                </p>
-                <p>
-                  <strong>Transmission:</strong> {truck.transmission}
-                </p>
-                <p>
-                  <strong>~Distance Travelled:</strong> {truck.odometer}
-                </p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {!truck.driver?.name && (
-                    <Button
-                      onClick={() => toggleModal("assign", truck)}
-                      className="bg-green-500 hover:bg-green-600 text-white"
-                    >
-                      Assign Driver
-                    </Button>
-                  )}
-                  <Button
-                    onClick={() => navigate(`/edit-truck/${truck.id}`)}
-                    className="bg-blue-500 hover:bg-blue-600 text-white"
-                  >
-                    Edit Truck
-                  </Button>
-                  {truck.driver?.name && (
-                    <Button
-                      onClick={() => toggleModal("deleteDriver", truck)}
-                      className="bg-red-500 hover:bg-red-600 text-white"
-                    >
-                      Unassign Driver
-                    </Button>
-                  )}
-                  <Button
-                    onClick={() => toggleModal("deleteTruck", truck)}
-                    className="bg-red-700 hover:bg-red-800 text-white"
-                  >
-                    Delete Truck
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
         </>
       ) : (
         <p className="text-gray-600">No trucks available.</p>
       )}
 
-      {/* Assign Driver Modal */}
+      {/* Modals */}
       {showModal.assign && (
         <Modal onClose={() => toggleModal("assign")}>
           <h2 className="text-xl font-semibold mb-4">Assign Driver</h2>
           <form onSubmit={(e) => e.preventDefault()}>
-            <div className="mb-4">
+            <div className="flex flex-col mb-4">
               {drivers.map((driver) => (
                 <label
                   key={driver.id}
-                  className="inline-flex items-center mb-2"
+                  className="justify-start items-center mb-2"
                 >
                   <input
                     type="radio"
@@ -286,7 +228,6 @@ const ViewTrucks = () => {
         </Modal>
       )}
 
-      {/* Unassign Driver Modal */}
       {showModal.deleteDriver && (
         <Modal onClose={() => toggleModal("deleteDriver")}>
           <h2 className="text-xl font-semibold mb-4">
@@ -310,7 +251,6 @@ const ViewTrucks = () => {
         </Modal>
       )}
 
-      {/* Delete Truck Modal */}
       {showModal.deleteTruck && (
         <Modal onClose={() => toggleModal("deleteTruck")}>
           <h2 className="text-xl font-semibold mb-4">Confirm Delete Truck</h2>

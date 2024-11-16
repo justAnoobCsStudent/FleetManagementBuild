@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify"; // Import toast for notifications
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -67,9 +68,11 @@ const EditTruck = () => {
     e.preventDefault();
     try {
       await axios.put(`http://localhost:7000/api/v1/vehicles/${id}`, formData);
+      toast.success("Truck updated successfully!"); // Success toast
       navigate(`/view-trucks`); // Redirect back to view trucks after saving
     } catch (error) {
       console.error("Error updating truck data:", error);
+      toast.error("Failed to update truck. Please try again."); // Error toast
     }
   };
 

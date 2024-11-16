@@ -14,7 +14,7 @@ const NotFoundPage = () => {
           Sorry, the page you're looking for doesn't exist.
         </p>
         <Link to="/">
-          <Button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          <Button className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
             Go Back Home
           </Button>
         </Link>

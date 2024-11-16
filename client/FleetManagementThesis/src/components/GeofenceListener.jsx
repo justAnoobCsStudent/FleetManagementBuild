@@ -8,7 +8,10 @@ import {
   where,
   getDocs,
   Timestamp,
+  setDoc,
+  doc,
 } from "firebase/firestore";
+import axios from "axios";
 import React, { useEffect } from "react";
 
 const GeoFenceListener = () => {
@@ -29,7 +32,7 @@ const GeoFenceListener = () => {
           `${truckName} entered: ${geofenceName} at ${formattedTimestamp}`,
           "Geofence",
           currentTime,
-          true // isInsideSub is true when entering the sub-geofence
+          true
         );
       },
       notifyExit: async (truckName, geofenceName) => {
@@ -47,7 +50,7 @@ const GeoFenceListener = () => {
           `${truckName} exited: ${geofenceName} at ${formattedTimestamp}`,
           "Geofence",
           currentTime,
-          false // isInsideSub is false when exiting the sub-geofence
+          false
         );
       },
       notifyOutsideBoundary: async (truckName) => {
@@ -65,12 +68,37 @@ const GeoFenceListener = () => {
           `${truckName} is outside the boundary at ${formattedTimestamp}`,
           "Geofence",
           currentTime,
-          false // Outside boundary is not related to sub-geofence
+          false
         );
+      },
+      updateVehicleStatus: async (truckName, isActiveStatus) => {
+        try {
+          const vehiclesRef = collection(firestore, "vehicles");
+          const q = query(vehiclesRef, where("truck_id", "==", truckName));
+          const querySnapshot = await getDocs(q);
+
+          if (!querySnapshot.empty) {
+            const docId = querySnapshot.docs[0].id;
+
+            await axios.put(`http://localhost:7000/api/v1/vehicles/${docId}`, {
+              isActive: isActiveStatus,
+            });
+            console.log(
+              `Truck "${truckName}" status updated to: ${
+                isActiveStatus ? "Active" : "Inactive"
+              }`
+            );
+          } else {
+            console.warn(
+              `Truck "${truckName}" not found in vehicles collection.`
+            );
+          }
+        } catch (error) {
+          console.error("Error updating truck status:", error);
+        }
       },
     };
 
-    // Helper function to store alarm in Firestore
     const storeAlarm = async (
       truckName,
       message,
@@ -79,7 +107,6 @@ const GeoFenceListener = () => {
       isInsideSub
     ) => {
       try {
-        // Check for duplicates in the alarms collection
         const alarmsRef = collection(firestore, "alarms");
         const q = query(
           alarmsRef,
@@ -89,15 +116,14 @@ const GeoFenceListener = () => {
         );
         const querySnapshot = await getDocs(q);
 
-        // If no duplicates found, add the alarm
         if (querySnapshot.empty) {
           await addDoc(alarmsRef, {
             truckName,
             message,
             type,
-            timestamp: Timestamp.fromDate(timestamp), // Correct timestamp format for Firestore
-            isInsideSub, // Add isInsideSub property
-            isRead: false, // New notifications are unread by default
+            timestamp: Timestamp.fromDate(timestamp),
+            isInsideSub,
+            isRead: false,
           });
           console.log(`Stored alarm for truck "${truckName}" in Firestore.`);
         } else {
@@ -110,28 +136,56 @@ const GeoFenceListener = () => {
       }
     };
 
-    // Listen to global events for geofence-related notifications
-    eventEmitter.on("geofence:entry", ({ truckName, geofenceName }) => {
-      GeoFenceListener.notifyEntry(truckName, geofenceName);
-    });
+    const handleGeoFenceStatus = async ({
+      truckName,
+      isInsideSub,
+      isInsideMain,
+      geofenceName,
+    }) => {
+      const reportsRef = collection(firestore, "reports");
+      const reportQuery = query(
+        reportsRef,
+        where("truckName", "==", truckName)
+      );
+      const querySnapshot = await getDocs(reportQuery);
 
-    eventEmitter.on("geofence:exit", ({ truckName, geofenceName }) => {
-      GeoFenceListener.notifyExit(truckName, geofenceName);
-    });
+      if (!querySnapshot.empty) {
+        const reportDoc = querySnapshot.docs[0];
+        const reportData = reportDoc.data();
 
-    eventEmitter.on("geofence:outside", ({ truckName }) => {
-      GeoFenceListener.notifyOutsideBoundary(truckName);
-    });
+        if (isInsideSub !== reportData.isInsideSub) {
+          if (isInsideSub) {
+            GeoFenceListener.notifyEntry(truckName, geofenceName);
+            GeoFenceListener.updateVehicleStatus(truckName, false);
+          } else {
+            GeoFenceListener.notifyExit(truckName, geofenceName);
+            GeoFenceListener.updateVehicleStatus(truckName, true);
+          }
+          await setDoc(doc(firestore, "reports", reportDoc.id), {
+            ...reportData,
+            isInsideSub,
+          });
+        }
+      } else {
+        await setDoc(doc(firestore, "reports", `${truckName}_report`), {
+          truckName,
+          isInsideSub,
+        });
+      }
 
-    // Cleanup listeners on unmount
+      if (!isInsideMain) {
+        GeoFenceListener.notifyOutsideBoundary(truckName);
+      }
+    };
+
+    eventEmitter.on("geofence:status", handleGeoFenceStatus);
+
     return () => {
-      eventEmitter.off("geofence:entry");
-      eventEmitter.off("geofence:exit");
-      eventEmitter.off("geofence:outside");
+      eventEmitter.off("geofence:status", handleGeoFenceStatus);
     };
   }, []);
 
-  return null; // Ensure this returns valid JSX or null
+  return null;
 };
 
 export default GeoFenceListener;
