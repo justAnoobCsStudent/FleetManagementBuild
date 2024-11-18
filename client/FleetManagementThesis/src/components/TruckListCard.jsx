@@ -20,15 +20,20 @@ const TruckListCard = ({ fuelData = {} }) => {
     return "bg-green-500"; // High fuel level
   };
 
+  // Sort trucks by truck_id in ascending order (e.g., TRUCK01, TRUCK02, TRUCK03)
+  const sortedTrucks = [...trucks].sort((a, b) =>
+    a.truck_id.localeCompare(b.truck_id)
+  );
+
   return (
     <div className="bg-white shadow-md rounded-lg p-6 w-full">
       {isLoading ? (
         <Spinner loading={isLoading} />
       ) : error ? (
         <p className="text-red-700">Error fetching data: {error.message}</p>
-      ) : trucks.length > 0 ? (
+      ) : sortedTrucks.length > 0 ? (
         <div className="space-y-4">
-          {trucks.map((truck) => (
+          {sortedTrucks.map((truck) => (
             <div
               key={truck.truck_id}
               className="border-b border-gray-200 pb-4 flex justify-between items-center"

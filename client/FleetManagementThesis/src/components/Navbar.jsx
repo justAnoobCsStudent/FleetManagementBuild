@@ -24,6 +24,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import ClipLoader from "react-spinners/ClipLoader";
 
 const Navbar = () => {
   const [activeDropdown, setActiveDropdown] = useState(null); // Track active dropdown
@@ -31,6 +32,7 @@ const Navbar = () => {
   const [alarms, setAlarms] = useState([]); // Store alarms
   const [unreadCount, setUnreadCount] = useState(0); // Count of unread alarms
   const [selectedAlarm, setSelectedAlarm] = useState(null); // For showing detailed alarm info in modal
+  const [isMarking, setIsMarking] = useState(false); // Loading state for marking read/unread
   const navigate = useNavigate();
 
   // Fetch user details from localStorage
@@ -61,6 +63,7 @@ const Navbar = () => {
   // Mark all notifications as read
   const markAllAsRead = async () => {
     try {
+      setIsMarking(true);
       const unreadAlarms = alarms.filter((alarm) => !alarm.isRead);
 
       const updatePromises = unreadAlarms.map((alarm) =>
@@ -69,30 +72,36 @@ const Navbar = () => {
 
       await Promise.all(updatePromises);
 
-      setAlarms((prevAlarms) =>
-        prevAlarms.map((alarm) => ({ ...alarm, isRead: true }))
-      );
-
-      setUnreadCount(0);
+      const updatedAlarms = alarms.map((alarm) => ({ ...alarm, isRead: true }));
+      setAlarms(updatedAlarms);
+      setUnreadCount(0); // Directly set to 0 as all are marked read
     } catch (error) {
       console.error("Error marking alarms as read:", error);
+    } finally {
+      setIsMarking(false);
     }
   };
 
   // Toggle individual notification read/unread state
   const toggleNotificationRead = async (id, isRead) => {
     try {
+      setIsMarking(true);
       await updateDoc(doc(firestore, "alarms", id), { isRead: !isRead });
 
-      setAlarms((prevAlarms) =>
-        prevAlarms.map((alarm) =>
-          alarm.id === id ? { ...alarm, isRead: !isRead } : alarm
-        )
+      const updatedAlarms = alarms.map((alarm) =>
+        alarm.id === id ? { ...alarm, isRead: !isRead } : alarm
       );
+      setAlarms(updatedAlarms);
 
-      setUnreadCount((prevCount) => (isRead ? prevCount + 1 : prevCount - 1));
+      // Recalculate unread count based on updated alarms
+      const newUnreadCount = updatedAlarms.filter(
+        (alarm) => !alarm.isRead
+      ).length;
+      setUnreadCount(newUnreadCount);
     } catch (error) {
       console.error("Error toggling notification read state:", error);
+    } finally {
+      setIsMarking(false);
     }
   };
 
@@ -144,6 +153,11 @@ const Navbar = () => {
               className="absolute right-0 mt-2 w-96 bg-white shadow-lg rounded-lg z-50 border border-gray-300 p-4 flex flex-col"
               style={{ maxHeight: "350px" }}
             >
+              {isMarking && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50 z-10">
+                  <ClipLoader size={30} color="#4A90E2" />
+                </div>
+              )}
               <ul className="overflow-y-auto flex-grow mb-4">
                 {alarms.length > 0 ? (
                   alarms.map((alarm) => (

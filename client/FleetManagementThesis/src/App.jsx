@@ -27,6 +27,7 @@ import AlarmListener from "./components/AlarmListener.jsx"; // Always active lis
 import AuthListener from "./components/AuthListener.jsx";
 import ViewAdmins from "./pages/View-Admins.jsx";
 import EditAdmin from "./pages/Edit-Admin.jsx";
+import ViewReport from "./pages/View-Report.jsx";
 
 // Defining router using createBrowserRouter and createRoutesFromElements
 const router = createBrowserRouter(
@@ -103,6 +104,14 @@ const router = createBrowserRouter(
           element={
             <IsLoggedIn>
               <ViewReports />
+            </IsLoggedIn>
+          }
+        />
+        <Route
+          path="/view-report/:reportId"
+          element={
+            <IsLoggedIn>
+              <ViewReport />
             </IsLoggedIn>
           }
         />

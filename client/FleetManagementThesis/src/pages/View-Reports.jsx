@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { ref, onValue } from "firebase/database";
 import { firestore, database } from "../Firebase";
-import { Button, buttonVariants } from "../components/ui/button";
+import { Button } from "../components/ui/button";
+import Spinner from "../components/Spinner"; // Import Spinner component
+import { Link } from "react-router-dom";
 
 const ViewReports = () => {
-  const trucks = [
-    { id: "TRUCK01", plate: "ABC 1234", driver: "John Doe" },
-    { id: "TRUCK02", plate: "DEF 5678", driver: "Jane Smith" },
-    { id: "TRUCK03", plate: "GHI 9101", driver: "Alice Johnson" },
-  ];
-  const truckIds = trucks.map((truck) => truck.id);
-
+  const trucks = ["TRUCK01", "TRUCK02", "TRUCK03"]; // Static array of truck IDs
   const [fuelTheftCount, setFuelTheftCount] = useState(0); // Count for Fuel Theft alarms
   const [geofenceCount, setGeofenceCount] = useState(0); // Count for Geofence alarms
   const [fuelData, setFuelData] = useState({}); // Fuel data for each truck
+  const [reports, setReports] = useState([]); // All reports
+  const [isLoading, setIsLoading] = useState(true); // Loading state
 
   useEffect(() => {
     const fetchData = async () => {
@@ -62,7 +60,7 @@ const ViewReports = () => {
       const data = snapshot.val() || {};
       const newFuelData = {};
 
-      truckIds.forEach((truckId) => {
+      trucks.forEach((truckId) => {
         if (data[truckId]) {
           const fuelEntries = data[truckId];
           const latestEntry = fuelEntries && Object.keys(fuelEntries).pop();
@@ -82,14 +80,46 @@ const ViewReports = () => {
     });
 
     return unsubscribeFuel; // Clean-up for fuel listener
-  }, [truckIds]); // Re-run only when truckIds changes
+  }, [trucks]); // Re-run only when trucks change
 
-  // Format today's date
-  const formattedDate = new Date().toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  // Fetch all reports
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        setIsLoading(true); // Set loading state
+        // Fetch "daily_reports" collection
+        const reportsRef = collection(firestore, "daily_reports");
+        const reportsSnapshot = await getDocs(reportsRef);
+        const fetchedReports = reportsSnapshot.docs.map((doc) => ({
+          id: doc.id, // Get the document ID
+          ...doc.data(),
+        }));
+
+        setReports(fetchedReports);
+      } catch (error) {
+        console.error("Error fetching reports:", error);
+      } finally {
+        setIsLoading(false); // Remove loading state
+      }
+    };
+
+    fetchReports();
+  }, []);
+
+  // Format a Firestore timestamp to "MMMM DD, YYYY"
+  const formatTimestamp = (timestamp) => {
+    if (!timestamp) return "Invalid Date";
+
+    if (typeof timestamp === "object" && timestamp.toDate) {
+      timestamp = timestamp.toDate();
+    }
+
+    return new Date(timestamp).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long", // Use "long" for the full month name
+      day: "numeric",
+    });
+  };
 
   // Determine the color based on the fuel used percentage
   const getFuelBarColor = (fuelUsed) => {
@@ -98,33 +128,46 @@ const ViewReports = () => {
     return "bg-red-500"; // High fuel used
   };
 
+  if (isLoading) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <Spinner /> {/* Show Spinner during loading */}
+      </div>
+    );
+  }
+
   return (
     <div className="w-full mx-auto bg-white p-6 rounded-lg shadow-md">
       <h1 className="text-2xl font-semibold mb-4">
-        Daily Report for {formattedDate}
+        Daily Report for{" "}
+        {new Date().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })}
       </h1>
 
       <div className="bg-gray-100 p-6 mb-6 w-full border-b border-gray-400">
         <div className="grid grid-cols-1 gap-6">
-          {trucks.map((truck) => (
+          {trucks.map((truckId) => (
             <div
-              key={truck.id}
+              key={truckId}
               className="bg-white p-4 rounded-lg shadow w-full flex flex-col items-center"
             >
               <h3 className="text-xl font-semibold mb-4">
-                Fuel Used - {truck.id}
+                Fuel Used - {truckId}
               </h3>
               <div className="w-full bg-gray-300 rounded-full h-8 overflow-hidden relative">
                 <div
                   className={`${getFuelBarColor(
-                    fuelData[truck.id]?.fuel_used || 0
+                    fuelData[truckId]?.fuel_used || 0
                   )} h-full`}
                   style={{
-                    width: `${fuelData[truck.id]?.fuel_used || 0}%`,
+                    width: `${fuelData[truckId]?.fuel_used || 0}%`,
                   }}
                 ></div>
                 <p className="absolute inset-0 flex items-center justify-center font-semibold text-white">
-                  {fuelData[truck.id]?.fuel_used || 0}%
+                  {fuelData[truckId]?.fuel_used || 0}%
                 </p>
               </div>
             </div>
@@ -150,6 +193,36 @@ const ViewReports = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Reports Table */}
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold mb-4">Reports</h2>
+        <table className="w-full border-collapse text-center">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="border px-4 py-2">Date</th>
+              <th className="border px-4 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {reports.map((report) => {
+              const formattedDate = formatTimestamp(report.timestamp);
+              return (
+                <tr key={report.id} className="hover:bg-gray-100">
+                  <td className="border px-4 py-2">{formattedDate}</td>
+                  <td className="border px-4 py-2">
+                    <Link to={`/view-report/${report.id}`}>
+                      <Button className="bg-gray-500 hover:bg-gray-600 text-white">
+                        View Report
+                      </Button>
+                    </Link>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </div>
   );

@@ -48,16 +48,20 @@ const GeoFence = ({ truckPosition, truckName }) => {
         .getBounds()
         .contains(truckCoordinates);
 
-      // Emit status with geofence name
+      // Correctly determine the geofence name
+      let geofenceName = "Outside All Geofences";
+      if (isInsideSub) {
+        geofenceName = subGeofence.name;
+      } else if (isInsideMain) {
+        geofenceName = subGeofence.name;
+      }
+
+      // Emit status with accurate geofence name
       eventEmitter.emit("geofence:status", {
         truckName,
         isInsideSub,
         isInsideMain,
-        geofenceName: isInsideSub
-          ? subGeofence.name
-          : isInsideMain
-          ? mainGeofence.name
-          : "Outside All Geofences",
+        geofenceName,
       });
     }
   }, [truckPosition, truckName]);
