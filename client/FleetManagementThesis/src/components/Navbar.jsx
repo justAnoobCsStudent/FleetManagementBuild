@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FiAlignJustify } from "react-icons/fi";
+import { FiAlignJustify, FiFilter } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
@@ -33,6 +33,9 @@ const Navbar = () => {
   const [unreadCount, setUnreadCount] = useState(0); // Count of unread alarms
   const [selectedAlarm, setSelectedAlarm] = useState(null); // For showing detailed alarm info in modal
   const [isMarking, setIsMarking] = useState(false); // Loading state for marking read/unread
+  const [filterType, setFilterType] = useState("All"); // Filter type for alarms
+  const [filterDropdownOpen, setFilterDropdownOpen] = useState(false); // Track filter dropdown state
+  const [isFiltering, setIsFiltering] = useState(false); // Loading state for filtering
   const navigate = useNavigate();
 
   // Fetch user details from localStorage
@@ -59,6 +62,12 @@ const Navbar = () => {
 
     return () => unsubscribe(); // Cleanup listener
   }, []);
+
+  // Filter alarms based on filterType
+  const filteredAlarms =
+    filterType === "All"
+      ? alarms
+      : alarms.filter((alarm) => alarm.type === filterType);
 
   // Mark all notifications as read
   const markAllAsRead = async () => {
@@ -93,7 +102,6 @@ const Navbar = () => {
       );
       setAlarms(updatedAlarms);
 
-      // Recalculate unread count based on updated alarms
       const newUnreadCount = updatedAlarms.filter(
         (alarm) => !alarm.isRead
       ).length;
@@ -103,6 +111,15 @@ const Navbar = () => {
     } finally {
       setIsMarking(false);
     }
+  };
+
+  const handleFilterSelection = (type) => {
+    setIsFiltering(true); // Show loader
+    setFilterType(type); // Apply filter
+    setTimeout(() => {
+      setIsFiltering(false); // Hide loader after a delay
+      setFilterDropdownOpen(false); // Close dropdown
+    }, 500); // Adjust the delay as needed
   };
 
   const handleLogout = async () => {
@@ -120,14 +137,12 @@ const Navbar = () => {
 
   return (
     <div className="bg-white shadow-md h-16 flex items-center justify-between px-4 md:px-6 lg:px-8 relative z-50">
-      {/* Welcome Message */}
       <div>
         <h1 className="text-lg md:text-xl font-semibold text-gray-700">
           Welcome, {displayName || "Admin"}
         </h1>
       </div>
 
-      {/* Right Section with Notification Bell and Dropdown */}
       <div className="flex items-center space-x-6 relative z-50">
         {/* Notification Bell */}
         <div className="relative">
@@ -147,7 +162,6 @@ const Navbar = () => {
             )}
           </button>
 
-          {/* Notification Dropdown */}
           {activeDropdown === "notifications" && (
             <div
               className="absolute right-0 mt-2 w-96 bg-white shadow-lg rounded-lg z-50 border border-gray-300 p-4 flex flex-col"
@@ -158,62 +172,99 @@ const Navbar = () => {
                   <ClipLoader size={30} color="#4A90E2" />
                 </div>
               )}
-              <ul className="overflow-y-auto flex-grow mb-4">
-                {alarms.length > 0 ? (
-                  alarms.map((alarm) => (
-                    <li
-                      key={alarm.id}
-                      className={`p-2 border-b hover:bg-gray-100 cursor-pointer flex justify-between items-center ${
-                        alarm.isRead ? "bg-gray-100" : "bg-white"
-                      }`}
-                      onClick={() => setSelectedAlarm(alarm)}
-                    >
-                      <div>
-                        <p className="text-sm font-medium">{alarm.message}</p>
-                        <p className="text-xs text-gray-500">
-                          {new Date(alarm.timestamp.toDate()).toLocaleString()}
-                        </p>
-                      </div>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            {alarm.isRead ? (
-                              <CheckCircleIcon
-                                className="h-5 w-5 text-green-500"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleNotificationRead(
-                                    alarm.id,
-                                    alarm.isRead
-                                  );
-                                }}
-                              />
-                            ) : (
-                              <XCircleIcon
-                                className="h-5 w-5 text-red-500"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleNotificationRead(
-                                    alarm.id,
-                                    alarm.isRead
-                                  );
-                                }}
-                              />
-                            )}
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            {alarm.isRead ? "Mark as Unread" : "Mark as Read"}
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </li>
-                  ))
-                ) : (
-                  <li className="p-2 text-gray-500 text-sm">
-                    No alarms found.
-                  </li>
+              {/* Filter Dropdown */}
+              <div className="relative mb-4">
+                <button
+                  className="flex items-center text-gray-600 hover:text-gray-800"
+                  onClick={() => setFilterDropdownOpen(!filterDropdownOpen)}
+                >
+                  <FiFilter className="h-5 w-5 mr-1" />
+                  Filter: {filterType}
+                </button>
+                {filterDropdownOpen && (
+                  <div className="absolute left-0 mt-2 w-32 bg-white shadow-lg rounded-md z-50">
+                    <ul className="py-1">
+                      {["All", "Fuel Theft", "Geofence"].map((type) => (
+                        <li
+                          key={type}
+                          className={`block px-4 py-2 text-sm cursor-pointer ${
+                            filterType === type
+                              ? "bg-gray-200 font-bold"
+                              : "hover:bg-gray-200"
+                          }`}
+                          onClick={() => handleFilterSelection(type)}
+                        >
+                          {type}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
-              </ul>
+              </div>
+              {isFiltering ? (
+                <div className="flex justify-center items-center py-4">
+                  <ClipLoader size={25} color="#4A90E2" />
+                </div>
+              ) : (
+                <ul className="overflow-y-auto flex-grow mb-4">
+                  {filteredAlarms.length > 0 ? (
+                    filteredAlarms.map((alarm) => (
+                      <li
+                        key={alarm.id}
+                        className={`p-2 border-b hover:bg-gray-100 cursor-pointer flex justify-between items-center ${
+                          alarm.isRead ? "bg-gray-100" : "bg-white"
+                        }`}
+                        onClick={() => setSelectedAlarm(alarm)}
+                      >
+                        <div>
+                          <p className="text-sm font-medium">{alarm.message}</p>
+                          <p className="text-xs text-gray-500">
+                            {new Date(
+                              alarm.timestamp.toDate()
+                            ).toLocaleString()}
+                          </p>
+                        </div>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              {alarm.isRead ? (
+                                <CheckCircleIcon
+                                  className="h-5 w-5 text-green-500"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleNotificationRead(
+                                      alarm.id,
+                                      alarm.isRead
+                                    );
+                                  }}
+                                />
+                              ) : (
+                                <XCircleIcon
+                                  className="h-5 w-5 text-red-500"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleNotificationRead(
+                                      alarm.id,
+                                      alarm.isRead
+                                    );
+                                  }}
+                                />
+                              )}
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {alarm.isRead ? "Mark as Unread" : "Mark as Read"}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </li>
+                    ))
+                  ) : (
+                    <li className="p-2 text-gray-500 text-sm">
+                      No alarms found.
+                    </li>
+                  )}
+                </ul>
+              )}
               <button
                 onClick={markAllAsRead}
                 className="sticky bottom-0 bg-white w-full text-sm flex items-center justify-center hover:text-blue-800 group"
@@ -253,7 +304,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Alarm Details Modal */}
       {selectedAlarm && (
         <Modal onClose={() => setSelectedAlarm(null)}>
           <div className="flex justify-between items-center mb-4">

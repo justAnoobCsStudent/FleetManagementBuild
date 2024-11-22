@@ -124,7 +124,6 @@ const ViewTrucks = () => {
                   <th className="py-2 px-4 border-b">Plate Number</th>
                   <th className="py-2 px-4 border-b">Color</th>
                   <th className="py-2 px-4 border-b">Transmission</th>
-                  <th className="py-2 px-4 border-b">~Distance Travelled</th>
                   <th className="py-2 px-4 border-b">Actions</th>
                 </tr>
               </thead>
@@ -145,7 +144,6 @@ const ViewTrucks = () => {
                     <td className="py-2 px-4 border-b">{truck.plateNumber}</td>
                     <td className="py-2 px-4 border-b">{truck.color}</td>
                     <td className="py-2 px-4 border-b">{truck.transmission}</td>
-                    <td className="py-2 px-4 border-b">{truck.odometer}</td>
                     <td className="py-2 px-4 border-b flex flex-col space-y-1">
                       {!truck.driver?.name && (
                         <Button

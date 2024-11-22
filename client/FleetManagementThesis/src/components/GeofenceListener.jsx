@@ -97,6 +97,26 @@ const GeoFenceListener = () => {
           console.error("Error updating truck status:", error);
         }
       },
+      generateVehicleReport: async (truckName) => {
+        try {
+          const vehiclesRef = collection(firestore, "vehicles");
+          const q = query(vehiclesRef, where("truck_id", "==", truckName));
+          const querySnapshot = await getDocs(q);
+
+          if (!querySnapshot.empty) {
+            const docId = querySnapshot.docs[0].id;
+
+            await axios.post(`http://localhost:7000/api/v1/reports/vehicle/`, {
+              vehicleId: docId,
+            });
+            console.log(`Report generated for ${truckName}`);
+          } else {
+            console.warn(`${truckName} was not found in database.`);
+          }
+        } catch (error) {
+          console.error("Error updating truck status:", error);
+        }
+      },
     };
 
     const storeAlarm = async (
@@ -138,7 +158,8 @@ const GeoFenceListener = () => {
 
     const handleGeoFenceStatus = async ({
       truckName,
-      isInsideSub,
+      isInsideSub1,
+      isInsideSub2,
       isInsideMain,
       geofenceName,
     }) => {
@@ -153,26 +174,47 @@ const GeoFenceListener = () => {
         const reportDoc = querySnapshot.docs[0];
         const reportData = reportDoc.data();
 
-        if (isInsideSub !== reportData.isInsideSub) {
-          if (isInsideSub) {
-            GeoFenceListener.notifyEntry(truckName, geofenceName);
+        // Handle sub-geofence 1
+        if (isInsideSub1 !== reportData.isInsideSub1) {
+          if (isInsideSub1) {
+            GeoFenceListener.notifyEntry(truckName, "Daniellah's Junkshop");
             GeoFenceListener.updateVehicleStatus(truckName, false);
+            GeoFenceListener.generateVehicleReport(truckName);
           } else {
-            GeoFenceListener.notifyExit(truckName, geofenceName);
+            GeoFenceListener.notifyExit(truckName, "Daniellah's Junkshop");
             GeoFenceListener.updateVehicleStatus(truckName, true);
           }
           await setDoc(doc(firestore, "reports", reportDoc.id), {
             ...reportData,
-            isInsideSub,
+            isInsideSub1,
+          });
+        }
+
+        // Handle sub-geofence 2
+        if (isInsideSub2 !== reportData.isInsideSub2) {
+          if (isInsideSub2) {
+            GeoFenceListener.notifyEntry(truckName, "SM Bacoor");
+            GeoFenceListener.updateVehicleStatus(truckName, false);
+            GeoFenceListener.generateVehicleReport(truckName);
+          } else {
+            GeoFenceListener.notifyExit(truckName, "SM Bacoor");
+            GeoFenceListener.updateVehicleStatus(truckName, true);
+          }
+          await setDoc(doc(firestore, "reports", reportDoc.id), {
+            ...reportData,
+            isInsideSub2,
           });
         }
       } else {
+        // Initialize a new report document for the truck
         await setDoc(doc(firestore, "reports", `${truckName}_report`), {
           truckName,
-          isInsideSub,
+          isInsideSub1,
+          isInsideSub2,
         });
       }
 
+      // Handle main geofence exit
       if (!isInsideMain) {
         GeoFenceListener.notifyOutsideBoundary(truckName);
       }

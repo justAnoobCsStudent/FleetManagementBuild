@@ -59,7 +59,7 @@ const AlarmListener = () => {
                 // If the document does not exist in the alarms collection, write it
                 try {
                   const docRef = await addDoc(collection(firestore, "alarms"), {
-                    truckId,
+                    truckname: truckId,
                     entryId: key, // Include entry ID for uniqueness
                     timestamp: Timestamp.fromDate(new Date(currentTime)),
                     message: `Fuel abnormalities detected in ${truckId}!`,

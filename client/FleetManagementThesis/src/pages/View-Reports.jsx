@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, where } from "firebase/firestore";
 import { ref, onValue } from "firebase/database";
 import { firestore, database } from "../Firebase";
 import { Button } from "../components/ui/button";
-import Spinner from "../components/Spinner"; // Import Spinner component
+import Spinner from "../components/Spinner";
 import { Link } from "react-router-dom";
 
 const ViewReports = () => {
@@ -87,9 +87,11 @@ const ViewReports = () => {
     const fetchReports = async () => {
       try {
         setIsLoading(true); // Set loading state
-        // Fetch "daily_reports" collection
+        // Fetch "daily_reports" collection and order by timestamp descending
         const reportsRef = collection(firestore, "daily_reports");
-        const reportsSnapshot = await getDocs(reportsRef);
+        const reportsQuery = query(reportsRef, orderBy("timestamp", "desc"));
+        const reportsSnapshot = await getDocs(reportsQuery);
+
         const fetchedReports = reportsSnapshot.docs.map((doc) => ({
           id: doc.id, // Get the document ID
           ...doc.data(),
