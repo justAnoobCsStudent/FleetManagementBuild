@@ -159,7 +159,7 @@ const ViewReport = () => {
       },
       {
         label: "Average Distance (km)",
-        data: sortedTrucks.map((truck) => truck.averageDistance),
+        data: sortedTrucks.map((truck) => truck.totalAverageDistance),
         backgroundColor: "rgba(255,99,132,0.5)",
         borderColor: "rgba(255,99,132,1)",
         borderWidth: 1,
@@ -276,6 +276,9 @@ const ViewReport = () => {
             </p>
             <p className="text-md font-medium mb-2">
               Plate Number: {truck.plateNumber}
+            </p>
+            <p className="text-md font-medium mb-2">
+              Total Time Travelled: {truck.totalTimeTravelled} seconds
             </p>
           </div>
         ))}

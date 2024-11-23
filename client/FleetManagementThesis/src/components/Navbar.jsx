@@ -219,9 +219,7 @@ const Navbar = () => {
                         <div>
                           <p className="text-sm font-medium">{alarm.message}</p>
                           <p className="text-xs text-gray-500">
-                            {new Date(
-                              alarm.timestamp.toDate()
-                            ).toLocaleString()}
+                            {new Date(alarm.timestamp).toLocaleString()}
                           </p>
                         </div>
                         <TooltipProvider>
@@ -321,7 +319,7 @@ const Navbar = () => {
           </p>
           <p>
             <strong>Timestamp:</strong>{" "}
-            {new Date(selectedAlarm.timestamp.toDate()).toLocaleString()}
+            {new Date(selectedAlarm.timestamp).toLocaleString()}
           </p>
         </Modal>
       )}

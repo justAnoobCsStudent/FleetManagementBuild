@@ -19,31 +19,38 @@ const ViewReports = () => {
       try {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        const startOfDay = today;
-        const endOfDay = new Date(today);
-        endOfDay.setHours(23, 59, 59, 999);
+        const startOfDay = today.getTime(); // Start of the day in milliseconds
+        const endOfDay = new Date(today).setHours(23, 59, 59, 999); // End of the day in milliseconds
 
         const alarmsRef = collection(firestore, "alarms");
 
-        // Fetch Fuel Theft alarms
-        const fuelTheftQuery = query(
-          alarmsRef,
-          where("timestamp", ">=", startOfDay),
-          where("timestamp", "<=", endOfDay),
-          where("type", "==", "Fuel Theft")
-        );
-        const fuelTheftSnapshot = await getDocs(fuelTheftQuery);
-        setFuelTheftCount(fuelTheftSnapshot.size);
+        // Fetch all alarms and filter manually
+        const alarmSnapshot = await getDocs(alarmsRef);
+        const alarms = alarmSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
 
-        // Fetch Geofence alarms
-        const geofenceQuery = query(
-          alarmsRef,
-          where("timestamp", ">=", startOfDay),
-          where("timestamp", "<=", endOfDay),
-          where("type", "==", "Geofence")
-        );
-        const geofenceSnapshot = await getDocs(geofenceQuery);
-        setGeofenceCount(geofenceSnapshot.size);
+        const fuelTheftCount = alarms.filter((alarm) => {
+          const alarmTimestamp = new Date(alarm.timestamp).getTime(); // Parse string timestamp
+          return (
+            alarm.type === "Fuel Theft" &&
+            alarmTimestamp >= startOfDay &&
+            alarmTimestamp <= endOfDay
+          );
+        }).length;
+
+        const geofenceCount = alarms.filter((alarm) => {
+          const alarmTimestamp = new Date(alarm.timestamp).getTime(); // Parse string timestamp
+          return (
+            alarm.type === "Geofence" &&
+            alarmTimestamp >= startOfDay &&
+            alarmTimestamp <= endOfDay
+          );
+        }).length;
+
+        setFuelTheftCount(fuelTheftCount);
+        setGeofenceCount(geofenceCount);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -69,7 +76,7 @@ const ViewReports = () => {
             : 0;
 
           newFuelData[truckId] = {
-            fuel_used: 100 - currentFuel, // Calculate fuel used as the inverse of current fuel
+            fuel_used: 100 - currentFuel, // Calculate fuel used as the opposite of current fuel
           };
         } else {
           newFuelData[truckId] = { fuel_used: 100 }; // If no data, assume full usage

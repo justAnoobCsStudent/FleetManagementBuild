@@ -10,6 +10,7 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
   RouterProvider,
+  useLocation,
 } from "react-router-dom";
 import MainLayout from "./layout/Main-Layout.jsx";
 import ViewDrivers from "./pages/View-Drivers.jsx";
@@ -28,8 +29,10 @@ import AuthListener from "./components/AuthListener.jsx";
 import ViewAdmins from "./pages/View-Admins.jsx";
 import EditAdmin from "./pages/Edit-Admin.jsx";
 import ViewReport from "./pages/View-Report.jsx";
+import GlobalGeofenceHandler from "./components/GlobalGeofenceHandler.jsx";
+import PathDistanceListener from "./components/PathDistanceListener.jsx";
 
-// Defining router using createBrowserRouter and createRoutesFromElements
+// Define the router
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -42,7 +45,7 @@ const router = createBrowserRouter(
           </MainLayout>
         }
       >
-        {/* Children Components */}
+        {/* Protected Routes */}
         <Route
           path="/dashboard"
           element={
@@ -148,31 +151,45 @@ const router = createBrowserRouter(
           }
         />
 
-        {/* Catch all route for all pages missing or not existing */}
+        {/* Fallback Route */}
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </>
   )
 );
 
-// App Component returning RouterProvider with the router
+// ToastContainerWrapper Component
+const ToastContainerWrapper = () => {
+  const location = useLocation();
+  const isLoginPage = location.pathname === "/";
+
+  return !isLoginPage ? (
+    <ToastContainer
+      position="top-right"
+      autoClose={5000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+    />
+  ) : null;
+};
+
+// App Component
 const App = () => {
   return (
     <>
-      <GeoFenceListener /> {/* Always active listener for geofence events */}
-      <AlarmListener /> {/* Always active listener for alarms */}
-      <RouterProvider router={router} />
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
+      <PathDistanceListener />
+      <GlobalGeofenceHandler />
+      <GeoFenceListener /> {/* Geofence logic listener */}
+      <AlarmListener /> {/* Alarm logic listener */}
+      <RouterProvider router={router}>
+        <ToastContainerWrapper />{" "}
+        {/* ToastContainer now inside RouterProvider */}
+      </RouterProvider>
     </>
   );
 };

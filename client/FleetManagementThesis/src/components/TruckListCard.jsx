@@ -11,8 +11,6 @@ const TruckListCard = ({ fuelData = {} }) => {
     error, // Error state
   } = useFetch("/vehicles");
 
-  console.log("Fuel Data in TruckListCard:", fuelData);
-
   // Function to determine fuel bar color based on percentage
   const getFuelBarColor = (fuelPercentage) => {
     if (fuelPercentage < 33) return "bg-red-500"; // Low fuel level

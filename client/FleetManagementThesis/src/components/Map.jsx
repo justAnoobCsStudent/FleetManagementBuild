@@ -51,14 +51,7 @@ const Map = ({ markers }) => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {/* Render GeoFence dynamically for each marker */}
-        {markers.map((marker) => (
-          <GeoFence
-            key={marker.id} // Use marker ID as the key
-            truckPosition={marker.position}
-            truckName={marker.name}
-          />
-        ))}
+        <GeoFence />
 
         {/* Render markers dynamically */}
         {markers.map((marker) => (

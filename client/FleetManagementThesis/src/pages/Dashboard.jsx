@@ -59,6 +59,24 @@ const Dashboard = () => {
 
     const unsubscribeFuel = onValue(fuelRef, (snapshot) => {
       const data = snapshot.val() || {};
+      if (data) {
+        const dynamicTruckIds = Object.keys(data); // Extract truck IDs from GPS data
+
+        // Update truck IDs only if they have changed
+        setTruckIds((prevIds) => {
+          if (JSON.stringify(prevIds) !== JSON.stringify(dynamicTruckIds)) {
+            return dynamicTruckIds;
+          }
+          return prevIds;
+        });
+        // Update truck IDs only if they have changed
+        setTruckIds((prevIds) => {
+          if (JSON.stringify(prevIds) !== JSON.stringify(dynamicTruckIds)) {
+            return dynamicTruckIds;
+          }
+          return prevIds;
+        });
+      }
       const newFuelData = {};
 
       truckIds.forEach((truckId) => {

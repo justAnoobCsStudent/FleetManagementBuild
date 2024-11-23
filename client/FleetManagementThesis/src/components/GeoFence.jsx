@@ -1,9 +1,7 @@
-import React, { useEffect } from "react";
-import L from "leaflet";
+import React from "react";
 import { Polygon } from "react-leaflet";
-import { eventEmitter } from "../utils/eventEmitter";
 
-const GeoFence = ({ truckPosition, truckName }) => {
+const GeoFence = () => {
   const mainGeofence = {
     name: "Main Geofence",
     coordinates: [
@@ -48,44 +46,6 @@ const GeoFence = ({ truckPosition, truckName }) => {
     color: "green",
     fillOpacity: 0.4,
   };
-
-  useEffect(() => {
-    if (truckPosition) {
-      const mainGeoFencePoly = L.polygon(mainGeofence.coordinates);
-      const subGeoFence1Poly = L.polygon(subGeofence1.coordinates);
-      const subGeoFence2Poly = L.polygon(subGeofence2.coordinates);
-      const truckCoordinates = L.latLng(truckPosition[0], truckPosition[1]);
-
-      const isInsideMain = mainGeoFencePoly
-        .getBounds()
-        .contains(truckCoordinates);
-      const isInsideSub1 = subGeoFence1Poly
-        .getBounds()
-        .contains(truckCoordinates);
-      const isInsideSub2 = subGeoFence2Poly
-        .getBounds()
-        .contains(truckCoordinates);
-
-      // Geofence
-      let geofenceName = "Outside All Geofences";
-      if (isInsideSub1 && !isInsideSub2 && isInsideMain) {
-        geofenceName = subGeofence1.name;
-      } else if (!isInsideSub1 && isInsideSub2 && isInsideMain) {
-        geofenceName = subGeofence2.name;
-      } else if (isInsideMain) {
-        geofenceName = mainGeofence.name;
-      }
-
-      // Emit status with accurate geofence name
-      eventEmitter.emit("geofence:status", {
-        truckName,
-        isInsideSub1,
-        isInsideSub2,
-        isInsideMain,
-        geofenceName,
-      });
-    }
-  }, [truckPosition, truckName]);
 
   return (
     <>
