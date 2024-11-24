@@ -319,15 +319,14 @@ const GlobalGeofenceHandler = () => {
       }
     };
 
-    const handleFuelStatus = async ({ truckId, fuel_percentage, message }) => {
+    const handleFuelStatus = async ({ truckId }) => {
       const currentTime = new Date();
       const formattedTimestamp = currentTime.toLocaleString();
 
-      const docRef = await addDoc(collection(firestore, "alarms"), {
-        truckname: truckId,
+      await addDoc(collection(firestore, "alarms"), {
+        truckName: truckId,
         timestamp: formattedTimestamp,
-        fuel_percentage: fuel_percentage,
-        message: message,
+        message: `Fuel Abnormalities detected in ${truckId}`,
         type: "Fuel Theft",
         isRead: false, // New isRead property
       });

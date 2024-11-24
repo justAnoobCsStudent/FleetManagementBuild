@@ -278,7 +278,14 @@ const ViewReport = () => {
               Plate Number: {truck.plateNumber}
             </p>
             <p className="text-md font-medium mb-2">
-              Total Time Travelled: {truck.totalTimeTravelled} seconds
+              Total Time Travelled:{" "}
+              {(() => {
+                const totalSeconds = truck.totalTimeTravelled;
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+                return `${hours}h ${minutes}m ${seconds}s`;
+              })()}
             </p>
           </div>
         ))}

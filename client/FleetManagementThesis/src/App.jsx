@@ -23,8 +23,8 @@ import Login from "./pages/Login.jsx";
 import IsLoggedIn from "./components/IsLoggedIn.jsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import GeoFenceListener from "./components/GeoFenceListener.jsx"; // Always active listener
-import AlarmListener from "./components/AlarmListener.jsx"; // Always active listener
+import GeoFenceListener from "./components/GeoFenceListener.jsx";
+import AlarmListener from "./components/AlarmListener.jsx";
 import AuthListener from "./components/AuthListener.jsx";
 import ViewAdmins from "./pages/View-Admins.jsx";
 import EditAdmin from "./pages/Edit-Admin.jsx";

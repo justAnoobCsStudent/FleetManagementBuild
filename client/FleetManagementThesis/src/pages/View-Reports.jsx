@@ -96,7 +96,7 @@ const ViewReports = () => {
         setIsLoading(true); // Set loading state
         // Fetch "daily_reports" collection and order by timestamp descending
         const reportsRef = collection(firestore, "daily_reports");
-        const reportsQuery = query(reportsRef, orderBy("timestamp", "desc"));
+        const reportsQuery = query(reportsRef, orderBy("timestamp", "asc"));
         const reportsSnapshot = await getDocs(reportsQuery);
 
         const fetchedReports = reportsSnapshot.docs.map((doc) => ({

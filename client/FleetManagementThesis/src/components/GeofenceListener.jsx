@@ -63,14 +63,17 @@ const GeoFenceListener = () => {
               const entries = Object.entries(truckData).sort(
                 ([keyA], [keyB]) => keyB.localeCompare(keyA) // Sort by keys to get the latest first
               );
-              if (entries.length >= 2) {
+              if (entries.length >= 3) {
                 const [, latestEntry] = entries[0];
-                const [, previousEntry] = entries[1];
+                const [, secondLatestEntry] = entries[1];
+                const [, thirdLatestEntry] = entries[2];
 
-                // Compare the latest and previous positions
+                // Compare the latest three positions
                 const isIdle =
-                  latestEntry.latitude === previousEntry.latitude &&
-                  latestEntry.longitude === previousEntry.longitude;
+                  latestEntry.latitude === secondLatestEntry.latitude &&
+                  latestEntry.longitude === secondLatestEntry.longitude &&
+                  secondLatestEntry.latitude === thirdLatestEntry.latitude &&
+                  secondLatestEntry.longitude === thirdLatestEntry.longitude;
 
                 // Update the isIdle status in Firestore
                 updateIdleStatus(truckId, isIdle);
