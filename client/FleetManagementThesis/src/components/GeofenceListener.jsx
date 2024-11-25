@@ -7,6 +7,7 @@ import {
   getDocs,
   updateDoc,
   doc,
+  addDoc,
 } from "firebase/firestore";
 import { database, firestore } from "../Firebase";
 import checkGeofenceStatus from "../utils/checkGeofenceStatus";
@@ -19,14 +20,29 @@ const GeoFenceListener = () => {
       const vehiclesRef = collection(firestore, "vehicles");
       const q = query(vehiclesRef, where("truck_id", "==", truckId));
       const querySnapshot = await getDocs(q);
+      const currentTime = new Date();
+      const formattedTimestamp = currentTime.toLocaleString();
 
       if (!querySnapshot.empty) {
         const vehicleDoc = querySnapshot.docs[0];
         const vehicleDocId = vehicleDoc.id;
 
-        // Update the isIdle status
+        // Update the isIdle status in the vehicles collection
         await updateDoc(doc(firestore, "vehicles", vehicleDocId), { isIdle });
         console.log(`Updated isIdle status for ${truckId}: ${isIdle}`);
+
+        if (isIdle) {
+          // Add a new document to the isIdles collection
+          const isIdlesRef = collection(firestore, "isIdles");
+          await addDoc(isIdlesRef, {
+            truckName: truckId,
+            isIdle,
+            timestamp: formattedTimestamp,
+          });
+          console.log(
+            `Added isIdle record to "isIdles" collection for ${truckId}.`
+          );
+        }
       } else {
         console.warn(
           `Vehicle with truck_id ${truckId} not found in Firestore.`

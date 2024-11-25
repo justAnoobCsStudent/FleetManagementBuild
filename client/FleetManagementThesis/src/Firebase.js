@@ -5,15 +5,14 @@ import { getFirestore } from "firebase/firestore";
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBtZd5eYWlyZ8bJS3crweBRKhWKss-BcWk",
-  authDomain: "thesis-demo-87a8e.firebaseapp.com",
+  apiKey: "AIzaSyC9mRWr6iPukag_UELFYwfxV__KAL9DJhc",
+  authDomain: "test-66db7.firebaseapp.com",
   databaseURL:
-    "https://thesis-demo-87a8e-default-rtdb.asia-southeast1.firebasedatabase.app/",
-  projectId: "thesis-demo-87a8e",
-  storageBucket: "thesis-demo-87a8e.appspot.com",
-  messagingSenderId: "742717130814",
-  appId: "1:742717130814:web:de4d15a9a2396434d8a96f",
-  measurementId: "G-FLPKNZ1WV3",
+    "https://test-66db7-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "test-66db7",
+  storageBucket: "test-66db7.firebasestorage.app",
+  messagingSenderId: "807322925191",
+  appId: "1:807322925191:web:5bb11b1727af19e3536022",
 };
 
 // Initialize Firebase
