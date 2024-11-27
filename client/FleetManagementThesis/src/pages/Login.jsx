@@ -23,12 +23,9 @@ const Login = () => {
         password,
       });
 
-      const { token, role, expiresAt } = response.data.data;
+      const { token, role } = response.data.data;
 
       // Save token and role to localStorage
-      console.log(`token ${token}`);
-      let expires = new Date(expiresAt).toLocaleDateString("en-US");
-      console.log(`expires at: ${expires}`);
       localStorage.setItem("token", token);
       localStorage.setItem("role", role);
 

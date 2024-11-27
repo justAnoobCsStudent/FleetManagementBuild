@@ -1,8 +1,8 @@
 // Import environment variables
-const prodURL = process.env.REACT_APP_PROD_URL;
-const devURL = process.env.REACT_APP_DEV_URL;
+const prodURL = `https://thesis-api-bmpc.onrender.com/api/v1`;
+const devURL = `http://localhost:7000/api/v1`;
 
 // Setting baseURL based on the environment
-const baseURL = process.env.REACT_APP_ENV === "production" ? prodURL : devURL;
+const baseURL = prodURL;
 
 export default baseURL;

@@ -27,6 +27,7 @@
     "chartjs-gauge": "^0.3.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "dotenv": "^16.4.5",
     "eventemitter3": "^5.0.1",
     "firebase": "^10.14.0",
     "html2canvas": "^1.4.1",
@@ -42,7 +43,8 @@
     "react-toastify": "^10.0.6",
     "socket.io-client": "^4.8.0",
     "tailwind-merge": "^2.5.2",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "vite-plugin-pwa": "^0.21.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
