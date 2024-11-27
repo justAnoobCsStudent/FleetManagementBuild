@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import Modal from "@/components/Modal";
 import axios from "axios";
 import { toast } from "react-toastify"; // Import toast for notifications
+import baseURL from "@/config/config";
 
 const ViewDrivers = () => {
   const [drivers, setDrivers] = useState([]);
@@ -17,9 +18,7 @@ const ViewDrivers = () => {
     const fetchDrivers = async () => {
       setIsLoading(true);
       try {
-        const driversResponse = await axios.get(
-          `http://localhost:7000/api/v1/drivers`
-        );
+        const driversResponse = await axios.get(`${baseURL}/drivers`);
         setDrivers(driversResponse.data.data);
       } catch (error) {
         setError(error);
@@ -43,9 +42,7 @@ const ViewDrivers = () => {
 
   const handleDeleteDriver = async () => {
     try {
-      await axios.delete(
-        `http://localhost:7000/api/v1/drivers/${selectedDriver.id}`
-      );
+      await axios.delete(`${baseURL}/drivers/${selectedDriver.id}`);
       handleCloseDeleteModal();
       setDrivers((prevDrivers) =>
         prevDrivers.filter((driver) => driver.id !== selectedDriver.id)

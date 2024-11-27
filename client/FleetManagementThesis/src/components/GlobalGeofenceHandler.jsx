@@ -13,6 +13,7 @@ import {
 } from "firebase/firestore";
 import axios from "axios";
 import React, { useEffect } from "react";
+import baseURL from "@/config/config";
 
 const GlobalGeofenceHandler = () => {
   useEffect(() => {
@@ -83,7 +84,7 @@ const GlobalGeofenceHandler = () => {
           if (!querySnapshot.empty) {
             const docId = querySnapshot.docs[0].id;
 
-            await axios.put(`http://localhost:7000/api/v1/vehicles/${docId}`, {
+            await axios.put(`${baseURL}/vehicles/${docId}`, {
               isActive: isActiveStatus,
             });
             console.log(
@@ -162,14 +163,11 @@ const GlobalGeofenceHandler = () => {
                 const timeTravelledInSeconds = Math.floor(timeTravelled / 1000);
 
                 // Call the API with vehicleId, timeTravelled, and averageDistance as parameters
-                await axios.post(
-                  `http://localhost:7000/api/v1/reports/vehicle/`,
-                  {
-                    vehicleId: docId,
-                    timeTravelled: timeTravelledInSeconds,
-                    averageDistance: averageDistance.toFixed(2), // Include the average distance
-                  }
-                );
+                await axios.post(`${baseURL}/reports/vehicle/`, {
+                  vehicleId: docId,
+                  timeTravelled: timeTravelledInSeconds,
+                  averageDistance: averageDistance.toFixed(2), // Include the average distance
+                });
 
                 console.log(
                   `Report generated for ${truckName} with timeTravelled: ${timeTravelledInSeconds} seconds and averageDistance: ${averageDistance.toFixed(

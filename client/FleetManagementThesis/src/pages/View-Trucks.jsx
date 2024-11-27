@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import Modal from "@/components/modal";
 import Spinner from "@/components/Spinner";
 import { toast } from "react-toastify"; // Import toast
+import baseURL from "@/config/config";
 
 const ViewTrucks = () => {
   const [trucks, setTrucks] = useState([]);
@@ -25,8 +26,8 @@ const ViewTrucks = () => {
       setIsLoading(true);
       try {
         const [trucksResponse, driversResponse] = await Promise.all([
-          axios.get("http://localhost:7000/api/v1/vehicles"),
-          axios.get("http://localhost:7000/api/v1/drivers"),
+          axios.get(`${baseURL}/vehicles`),
+          axios.get(`${baseURL}/drivers`),
         ]);
         setTrucks(trucksResponse.data.data);
         setDrivers(driversResponse.data.data);
@@ -49,12 +50,9 @@ const ViewTrucks = () => {
   const handleAssignDriver = async () => {
     if (!selectedDriver) return;
     try {
-      await axios.put(
-        `http://localhost:7000/api/v1/vehicles/add-driver/${selectedTruck.id}`,
-        {
-          driverId: selectedDriver,
-        }
-      );
+      await axios.put(`${baseURL}/vehicles/add-driver/${selectedTruck.id}`, {
+        driverId: selectedDriver,
+      });
       toggleModal("assign");
       setTrucks((prevTrucks) =>
         prevTrucks.map((truck) =>
@@ -72,9 +70,7 @@ const ViewTrucks = () => {
 
   const handleDeleteDriver = async () => {
     try {
-      await axios.put(
-        `http://localhost:7000/api/v1/vehicles/delete-driver/${selectedTruck.id}`
-      );
+      await axios.put(`${baseURL}/vehicles/delete-driver/${selectedTruck.id}`);
       toggleModal("deleteDriver");
       setTrucks((prevTrucks) =>
         prevTrucks.map((truck) =>
@@ -90,9 +86,7 @@ const ViewTrucks = () => {
 
   const handleDeleteTruck = async () => {
     try {
-      await axios.delete(
-        `http://localhost:7000/api/v1/vehicles/${selectedTruck.id}`
-      );
+      await axios.delete(`${baseURL}/vehicles/${selectedTruck.id}`);
       toggleModal("deleteTruck");
       setTrucks((prevTrucks) =>
         prevTrucks.filter((truck) => truck.id !== selectedTruck.id)

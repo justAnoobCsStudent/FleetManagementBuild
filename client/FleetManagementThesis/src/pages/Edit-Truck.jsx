@@ -12,6 +12,7 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
+import baseURL from "@/config/config";
 
 const EditTruck = () => {
   const { id } = useParams(); // Get truck ID from the URL
@@ -33,9 +34,7 @@ const EditTruck = () => {
   useEffect(() => {
     const fetchTruck = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:7000/api/v1/vehicles/${id}`
-        );
+        const response = await axios.get(`${baseURL}/vehicles/${id}`);
         const fetchedTruck = response.data.data;
         setTruck(fetchedTruck);
         setFormData({
@@ -67,7 +66,7 @@ const EditTruck = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:7000/api/v1/vehicles/${id}`, formData);
+      await axios.put(`${baseURL}/vehicles/${id}`, formData);
       toast.success("Truck updated successfully!"); // Success toast
       navigate(`/view-trucks`); // Redirect back to view trucks after saving
     } catch (error) {

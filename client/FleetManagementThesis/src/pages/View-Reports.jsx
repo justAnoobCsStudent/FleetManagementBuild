@@ -87,7 +87,7 @@ const ViewReports = () => {
     });
 
     return unsubscribeFuel; // Clean-up for fuel listener
-  }, [trucks]); // Re-run only when trucks change
+  }, []);
 
   // Fetch all reports
   useEffect(() => {

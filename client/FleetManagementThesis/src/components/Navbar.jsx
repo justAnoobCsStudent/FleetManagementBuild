@@ -25,6 +25,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import ClipLoader from "react-spinners/ClipLoader";
+import baseURL from "@/config/config";
 
 const Navbar = () => {
   const [activeDropdown, setActiveDropdown] = useState(null); // Track active dropdown
@@ -124,7 +125,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await axios.get(`http://localhost:7000/api/v1/logout`);
+      const response = await axios.get(`${baseURL}/logout`);
       console.log(response.data.message);
       localStorage.removeItem("token");
       localStorage.removeItem("role");

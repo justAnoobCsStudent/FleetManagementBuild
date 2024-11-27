@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import baseURL from "@/config/config";
 
 const AddAdmin = () => {
   const [formData, setFormData] = useState({
@@ -35,13 +36,9 @@ const AddAdmin = () => {
     setIsLoading(true);
     try {
       const token = localStorage.getItem("token"); // Assuming token is stored in localStorage
-      await axios.post(
-        "http://localhost:7000/api/v1/users/register",
-        formData,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await axios.post(`${baseURL}/users/register`, formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       toast.success("Admin added successfully!", { position: "top-right" });
       navigate("/view-admins"); // Redirect to View Admins page
     } catch (error) {

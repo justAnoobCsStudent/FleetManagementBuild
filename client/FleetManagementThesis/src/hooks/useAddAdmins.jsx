@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
+import baseURL from "@/config/config";
 
 const useAddAdmins = (endpoint, initialFormState, validate) => {
   const [loading, setLoading] = useState(false);
@@ -17,7 +18,7 @@ const useAddAdmins = (endpoint, initialFormState, validate) => {
       const token = localStorage.getItem("token");
 
       await axios.post(
-        `http://localhost:7000/api/v1${endpoint}`,
+        `${baseURL}${endpoint}`,
         { ...formData, role: "admin" },
         {
           headers: { Authorization: `Bearer ${token}` },

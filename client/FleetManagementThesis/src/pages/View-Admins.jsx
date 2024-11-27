@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Modal from "@/components/Modal"; // Assume you have a Modal component
 import Spinner from "@/components/Spinner";
+import baseURL from "@/config/config";
 
 const ViewAdmins = () => {
   const [admins, setAdmins] = useState([]);
@@ -19,12 +20,9 @@ const ViewAdmins = () => {
       setIsLoading(true);
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get(
-          "http://localhost:7000/api/v1/users/admins",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const response = await axios.get(`${baseURL}/users/admins`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setAdmins(response.data.data);
       } catch (error) {
         setError("Error fetching admins");
@@ -47,12 +45,9 @@ const ViewAdmins = () => {
   const handleDeleteAdmin = async () => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(
-        `http://localhost:7000/api/v1/users/${selectedAdmin.id}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await axios.delete(`${baseURL}/users/${selectedAdmin.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       // Update the admins list locally after successful deletion
       setAdmins((prevAdmins) =>

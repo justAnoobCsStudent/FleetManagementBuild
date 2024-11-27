@@ -5,6 +5,7 @@ import { toast } from "react-toastify"; // Import toast for notifications
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import baseURL from "@/config/config";
 
 const ViewDriver = () => {
   const { id } = useParams(); // Get driver ID from URL
@@ -29,9 +30,7 @@ const ViewDriver = () => {
   useEffect(() => {
     const fetchDriver = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:7000/api/v1/drivers/${id}`
-        ); // API endpoint
+        const response = await axios.get(`${baseURL}/drivers/${id}`); // API endpoint
         setDriver(response.data.data);
         setFormData({
           firstName: response.data.data.name.firstName,
@@ -64,7 +63,7 @@ const ViewDriver = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:7000/api/v1/drivers/${id}`, formData); // Update API call
+      await axios.put(`${baseURL}/drivers/${id}`, formData); // Update API call
       setDriver({ ...driver, ...formData });
       setIsEditing(false); // Switch back to view mode after saving
       toast.success("Driver updated successfully!"); // Success toast

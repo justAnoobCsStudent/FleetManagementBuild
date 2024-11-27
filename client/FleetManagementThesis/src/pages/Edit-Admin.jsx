@@ -5,6 +5,7 @@ import { toast } from "react-toastify"; // Import toast for notifications
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import baseURL from "@/config/config";
 
 const EditAdmin = () => {
   const { id } = useParams(); // Get admin ID from the URL
@@ -24,12 +25,9 @@ const EditAdmin = () => {
     const fetchAdmin = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get(
-          `http://localhost:7000/api/v1/users/admins`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const response = await axios.get(`${baseURL}/users/admins`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         const fetchedAdmin = response.data.data.find(
           (admin) => admin.id === id
@@ -73,7 +71,7 @@ const EditAdmin = () => {
         delete payload.password;
       }
 
-      await axios.put(`http://localhost:7000/api/v1/users/${id}`, payload, {
+      await axios.put(`${baseURL}/users/${id}`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

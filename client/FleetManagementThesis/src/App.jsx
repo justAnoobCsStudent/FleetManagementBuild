@@ -163,7 +163,7 @@ const ToastContainerWrapper = () => {
   const location = useLocation();
   const isLoginPage = location.pathname === "/";
 
-  return !isLoginPage ? (
+  return isLoginPage ? (
     <ToastContainer
       position="top-right"
       autoClose={5000}

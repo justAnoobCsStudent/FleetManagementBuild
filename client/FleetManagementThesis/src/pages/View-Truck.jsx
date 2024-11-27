@@ -6,6 +6,7 @@ import { ref, onValue } from "firebase/database";
 import { database } from "../Firebase";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import Spinner from "@/components/Spinner";
+import baseURL from "@/config/config";
 
 const ViewTruck = () => {
   const { id } = useParams(); // Get truck ID from the URL
@@ -19,9 +20,7 @@ const ViewTruck = () => {
   useEffect(() => {
     const fetchTruck = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:7000/api/v1/vehicles/${id}`
-        ); // Fetch truck details
+        const response = await axios.get(`${baseURL}/vehicles/${id}`); // Fetch truck details
         const fetchedTruck = response.data.data;
         setTruck(fetchedTruck);
         setIsLoading(false);

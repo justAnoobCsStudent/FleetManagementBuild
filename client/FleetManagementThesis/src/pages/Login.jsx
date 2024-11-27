@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import baseURL from "@/config/config";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -17,14 +18,17 @@ const Login = () => {
 
     try {
       // Send login request to the server
-      const response = await axios.post(`http://localhost:7000/api/v1/login`, {
+      const response = await axios.post(`${baseURL}/login`, {
         email,
         password,
       });
 
-      const { token, role } = response.data.data;
+      const { token, role, expiresAt } = response.data.data;
 
       // Save token and role to localStorage
+      console.log(`token ${token}`);
+      let expires = new Date(expiresAt).toLocaleDateString("en-US");
+      console.log(`expires at: ${expires}`);
       localStorage.setItem("token", token);
       localStorage.setItem("role", role);
 
